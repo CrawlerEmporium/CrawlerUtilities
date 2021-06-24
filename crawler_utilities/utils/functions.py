@@ -36,6 +36,7 @@ def a_or_an(string, upper=False):
 def camel_to_title(string):
     return re.sub(r'((?<=[a-z])[A-Z]|(?<!\A)[A-Z](?=[a-z]))', r' \1', string).title()
 
+
 def discord_trim(string):
     result = []
     trimLen = 0
@@ -45,3 +46,86 @@ def discord_trim(string):
         result.append(string[lastLen:trimLen])
         lastLen += 1999
     return result
+
+
+def fakeField(embed):
+    embed.add_field(name="** **", value="** **")
+
+
+def get_positivity(string):
+    if isinstance(string, bool):  # oi!
+        return string
+    lowered = string.lower()
+    if lowered in ('yes', 'y', 'true', 't', '1', 'enable', 'on'):
+        return True
+    elif lowered in ('no', 'n', 'false', 'f', '0', 'disable', 'off'):
+        return False
+    else:
+        return None
+
+
+async def splitDiscordEmbedField(embed, input, embed_field_name):
+    texts = []
+    while len(input) > 1024:
+        next_text = input[:1024]
+        last_space = next_text.rfind(" ")
+        input = "…" + input[last_space + 1:]
+        next_text = next_text[:last_space] + "…"
+        texts.append(next_text)
+    texts.append(input)
+    embed.add_field(name=embed_field_name, value=texts[0], inline=False)
+    for piece in texts[1:]:
+        embed.add_field(name="** **", value=piece, inline=False)
+
+
+async def safeEmbed(embed_queue, title, desc, color):
+    if len(desc) < 1024:
+        embed_queue[-1].add_field(name=title, value=desc, inline=False)
+    elif len(desc) < 4096:
+        embed = discord.Embed(colour=color, title=title)
+        await splitDiscordEmbedField(embed, desc, title)
+        embed_queue.append(embed)
+    else:
+        embed_queue.append(discord.Embed(colour=color, title=title))
+        texts = []
+        while len(desc) > 2040:
+            next_text = desc[:2040]
+            last_space = next_text.rfind(" ")
+            desc = "…" + desc[last_space + 1:]
+            next_text = next_text[:last_space] + "…"
+            texts.append(next_text)
+        texts.append(desc)
+        embed_queue[-1].description = texts[0]
+        for t in texts[1:]:
+            embed = discord.Embed(colour=color)
+            await splitDiscordEmbedField(embed, t, "** **")
+            embed_queue.append(embed)
+
+
+def cutStringInPieces(input):
+    n = 900
+    output = [input[i:i + n] for i in range(0, len(input), n)]
+    return output
+
+
+def cutListInPieces(input):
+    n = 30
+    output = [input[i:i + n] for i in range(0, len(input), n)]
+    return output
+
+
+def countChannels(channels):
+    channelCount = 0
+    voiceCount = 0
+    for x in channels:
+        if type(x) is discord.TextChannel:
+            channelCount += 1
+        elif type(x) is discord.VoiceChannel:
+            voiceCount += 1
+        else:
+            pass
+    return channelCount, voiceCount
+
+
+def get_server_prefix(self, msg):
+    return self.get_prefix(self, msg)[-1]
