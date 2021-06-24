@@ -58,38 +58,41 @@ class Help(commands.HelpCommand):
             embed = discord.Embed(title=f"{helpCommand['command'].title()}",
                                   description=f"{description.replace('{/prefix}', prefix)}")
 
-            if len(helpCommand['syntax']) > 1:
-                for i in range(len(helpCommand['syntax'])):
-                    embed.add_field(name=f"Syntax {i + 1}",
-                                    value=f"{helpCommand['syntax'][i].replace('{/prefix}', prefix)}", inline=False)
-            else:
-                embed.add_field(name=f"Syntax", value=f"{helpCommand['syntax'][0].replace('{/prefix}', prefix)}",
-                                inline=False)
+            if helpCommand.get('syntax', None) is not None:
+                if len(helpCommand['syntax']) > 1:
+                    for i in range(len(helpCommand['syntax'])):
+                        embed.add_field(name=f"Syntax {i + 1}",
+                                        value=f"{helpCommand['syntax'][i].replace('{/prefix}', prefix)}", inline=False)
+                else:
+                    embed.add_field(name=f"Syntax", value=f"{helpCommand['syntax'][0].replace('{/prefix}', prefix)}",
+                                    inline=False)
 
             if helpCommand.get('aliasFor', None) is not None:
                 aliasString = ', '.join(helpCommand['aliasFor'])
                 embed.add_field(name=f"Aliases", value=f"{aliasString.replace('{/prefix}', prefix)}", inline=False)
 
-            if len(helpCommand['options']) > 1:
-                for i in range(len(helpCommand['options'])):
-                    entryString = '\n'.join(helpCommand['options'][i]['entries'])
-                    embed.add_field(name=f"Option: {helpCommand['options'][i]['argument']}",
+            if helpCommand.get('options', None) is not None:
+                if len(helpCommand['options']) > 1:
+                    for i in range(len(helpCommand['options'])):
+                        entryString = '\n'.join(helpCommand['options'][i]['entries'])
+                        embed.add_field(name=f"Option: {helpCommand['options'][i]['argument']}",
+                                        value=f"{entryString.replace('{/prefix}', prefix)}",
+                                        inline=False)
+                else:
+                    entryString = '\n'.join(helpCommand['options'][0]['entries'])
+                    embed.add_field(name=f"Option: {helpCommand['options'][0]['argument']}",
                                     value=f"{entryString.replace('{/prefix}', prefix)}",
                                     inline=False)
-            else:
-                entryString = '\n'.join(helpCommand['options'][0]['entries'])
-                embed.add_field(name=f"Option: {helpCommand['options'][0]['argument']}",
-                                value=f"{entryString.replace('{/prefix}', prefix)}",
-                                inline=False)
 
-            if len(helpCommand['examples']) > 1:
-                exampleString = "\n".join(helpCommand['examples'])
-                embed.add_field(name=f"Examples",
-                                value=f"{exampleString.replace('{/prefix}', prefix)}",
-                                inline=False)
-            else:
-                embed.add_field(name=f"Example", value=f"{helpCommand['examples'][0].replace('{/prefix}', prefix)}",
-                                inline=False)
+            if helpCommand.get('examples', None) is not None:
+                if len(helpCommand['examples']) > 1:
+                    exampleString = "\n".join(helpCommand['examples'])
+                    embed.add_field(name=f"Examples",
+                                    value=f"{exampleString.replace('{/prefix}', prefix)}",
+                                    inline=False)
+                else:
+                    embed.add_field(name=f"Example", value=f"{helpCommand['examples'][0].replace('{/prefix}', prefix)}",
+                                    inline=False)
 
             typeString = ", ".join(helpCommand['types'])
             embed.add_field(name=f"Types", value=f"{typeString}", inline=False)
