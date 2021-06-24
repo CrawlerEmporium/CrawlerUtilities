@@ -1,6 +1,6 @@
 import discord
-from discord.ext import commands
 import asyncio
+from discord.ext import commands
 from copy import deepcopy
 from typing import List
 from .abc import Dialog
@@ -23,19 +23,19 @@ class EmbedPaginator(Dialog):
         self.pages = pages
         self.message = message
 
-        self.control_emojis = ('â®', 'â—€', 'â–¶', 'â­', 'â¹')
+        self.control_emojis = ("⏮", "◀", "▶", "⏭", "⏹")
 
     @property
     def formatted_pages(self):
         pages = deepcopy(self.pages)  # copy by value not reference
         for page in pages:
             if page.footer.text == discord.Embed.Empty:
-                page.set_footer(text=f"({pages.index(page)+1}/{len(pages)})")
+                page.set_footer(text=f"({pages.index(page) + 1}/{len(pages)})")
             else:
                 if page.footer.icon_url == discord.Embed.Empty:
-                    page.set_footer(text=f"{page.footer.text} - ({pages.index(page)+1}/{len(pages)})")
+                    page.set_footer(text=f"{page.footer.text} - ({pages.index(page) + 1}/{len(pages)})")
                 else:
-                    page.set_footer(icon_url=page.footer.icon_url, text=f"{page.footer.text} - ({pages.index(page)+1}/{len(pages)})")
+                    page.set_footer(icon_url=page.footer.icon_url, text=f"{page.footer.text} - ({pages.index(page) + 1}/{len(pages)})")
         return pages
 
     async def run(self, users: List[discord.User], channel: discord.TextChannel = None, valid=None):
@@ -86,25 +86,16 @@ class EmbedPaginator(Dialog):
         def task_complete(t):
             t.cancel()
 
-        # reaction = asyncio.create_task(self._client.wait_for('reaction_add', check=checkR, timeout=60))
         reaction = self._client.wait_for('reaction_add', check=checkR, timeout=60)
         msg = self._client.wait_for('message', check=checkM, timeout=60)
-        # msg = asyncio.create_task(self._client.wait_for('message', check=checkM, timeout=60)).add_done_callback(task_complete(reaction))
-
-        # print("REACTION", reaction)
-        # print("MSG", msg)
 
         tasks = [reaction, msg]
-        # await asyncio.wait(tasks, return_when=asyncio.FIRST_COMPLETED)
         while tasks:
             try:
-                done, pending  = await asyncio.wait(tasks, return_when=asyncio.FIRST_COMPLETED)
+                done, pending = await asyncio.wait(tasks, return_when=asyncio.FIRST_COMPLETED)
                 for x in done:
                     result = x.result()
                     if result:
-                        # for task in unfinished:
-                        #     task.cancel()
-                        # await asyncio.wait(unfinished)
                         if isinstance(result, tuple):
                             emoji = result[0].emoji
                             user = result[1]
@@ -128,7 +119,7 @@ class EmbedPaginator(Dialog):
 
                             await self.message.edit(embed=self.formatted_pages[load_page_index])
                             if not isinstance(channel, discord.channel.DMChannel) and not isinstance(channel,
-                                                                                                    discord.channel.GroupChannel):
+                                                                                                     discord.channel.GroupChannel):
                                 await self.message.remove_reaction(emoji, user)
 
                             current_page_index = load_page_index
@@ -150,7 +141,7 @@ class EmbedPaginator(Dialog):
                             return result.content
             except asyncio.TimeoutError:
                 if not isinstance(channel, discord.channel.DMChannel) and not isinstance(channel,
-                                                                                        discord.channel.GroupChannel):
+                                                                                         discord.channel.GroupChannel):
                     await self.message.clear_reactions()
                     await self.message.delete()
                 else:
