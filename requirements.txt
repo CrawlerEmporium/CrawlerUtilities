@@ -1,0 +1,2 @@
+discord.py>=1.7.0
+motor~=2.3.0
