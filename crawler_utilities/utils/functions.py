@@ -129,3 +129,11 @@ def countChannels(channels):
 
 def get_server_prefix(self, msg):
     return self.get_prefix(self, msg)[-1]
+
+
+async def get_next_num(properties, keyName):
+    reportNum = await properties.find_one({'key': keyName})
+    num = reportNum['amount'] + 1
+    reportNum['amount'] += 1
+    await properties.replace_one({"key": keyName}, reportNum)
+    return f"{num}"

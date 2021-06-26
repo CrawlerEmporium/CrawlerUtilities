@@ -4,12 +4,13 @@ import asyncio
 from random import random
 
 from aiohttp import ClientResponseError, ClientOSError
+from crawler_utilities.utils.embeds import ErrorEmbedWithAuthorWithoutContext
 from discord import Forbidden, HTTPException, InvalidArgument, NotFound
 from discord.ext import commands
 from discord.ext.commands import CommandInvokeError, ExpectedClosingQuoteError, UnexpectedQuoteError
 from crawler_utilities.handlers.errors import CrawlerException, InvalidArgument, EvaluationError
 from crawler_utilities.handlers import logger
-from crawler_utilities.utils.functions import discord_trim
+from crawler_utilities.utils.functions import splitDiscordEmbedField
 
 log = logger.logger
 
@@ -67,7 +68,7 @@ class Errors(commands.Cog):
 
     @commands.Cog.listener()
     async def on_command_error(self, ctx, error):
-        owner = self.bot.get_user(self.bot.user)
+        errorChannel = self.bot.fetch_channel(self.bot.error)
         if isinstance(error, commands.CommandNotFound):
             return
         log.debug("Error caused by message: `{}`".format(ctx.message.content))
@@ -142,19 +143,17 @@ class Errors(commands.Cog):
         await ctx.send(
             f"Error: {str(error)}\nUh oh, that wasn't supposed to happen! "
             f"Please join the Support Discord ({ctx.prefix}support) and tell the developer that: **{error_msg}!**")
+
+        embed = ErrorEmbedWithAuthorWithoutContext(ctx.message.author)
+        embed.title = error_msg
         try:
-            await owner.send(
-                f"**{error_msg}**\n" \
-                + "Error in channel {} ({}), server {} ({}): {}\nCaused by message: `{}`".format(
-                    ctx.channel, ctx.channel.id, ctx.guild,
-                    ctx.guild.id, repr(error),
-                    ctx.message.content))
-        except AttributeError:
-            await owner.send(f"**{error_msg}**\n" \
-                             + "Error in PM with {} ({}), shard 0: {}\nCaused by message: `{}`".format(
-                ctx.author.mention, str(ctx.author), repr(error), ctx.message.content))
-        for o in discord_trim(tb):
-            await owner.send(o)
+            embed.description = f"Error in channel {ctx.channel} ({ctx.channel.id}), server {ctx.guild} ({ctx.guild.id}): {repr(error)}"
+        except:
+            embed.description = f"Error in PM with {ctx.author} ({ctx.author.id}): {repr(error)}"
+        embed.add_field(name="Caused by", value=f"{ctx.message.content}", inline=False)
+        await splitDiscordEmbedField(embed, tb, "Traceback")
+
+        errorChannel.send(embed=embed)
         log.error("Error caused by message: `{}`".format(ctx.message.content))
 
     def gen_error_message(self):
