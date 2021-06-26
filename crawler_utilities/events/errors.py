@@ -1,7 +1,7 @@
 import traceback
 
 import asyncio
-from random import random
+import random
 
 from aiohttp import ClientResponseError, ClientOSError
 from crawler_utilities.utils.embeds import ErrorEmbedWithAuthorWithoutContext
@@ -145,12 +145,12 @@ class Errors(commands.Cog):
             f"Please join the Support Discord ({ctx.prefix}support) and tell the developer that: **{error_msg}!**")
 
         embed = ErrorEmbedWithAuthorWithoutContext(ctx.message.author)
-        embed.title = error_msg
+        embed.title = f"Error: {error_msg}"
         try:
-            embed.description = f"Error in channel {ctx.channel} ({ctx.channel.id}), server {ctx.guild} ({ctx.guild.id}): {repr(error)}"
+            embed.description = f"Error in channel: **{ctx.channel}** ({ctx.channel.id})\nserver: **{ctx.guild}** ({ctx.guild.id})\n\n{repr(error)}"
         except:
-            embed.description = f"Error in PM with {ctx.author} ({ctx.author.id}): {repr(error)}"
-        embed.add_field(name="Caused by", value=f"{ctx.message.content}", inline=False)
+            embed.description = f"Error in PM with **{ctx.author}** ({ctx.author.id})\n\n{repr(error)}"
+        embed.add_field(name="Command Errored", value=f"{ctx.message.content}", inline=False)
         await splitDiscordEmbedField(embed, tb, "Traceback")
 
         await errorChannel.send(embed=embed)
