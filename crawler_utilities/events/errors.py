@@ -68,7 +68,7 @@ class Errors(commands.Cog):
 
     @commands.Cog.listener()
     async def on_command_error(self, ctx, error):
-        errorChannel = self.bot.fetch_channel(self.bot.error)
+        errorChannel = await self.bot.fetch_channel(self.bot.error)
         if isinstance(error, commands.CommandNotFound):
             return
         log.debug("Error caused by message: `{}`".format(ctx.message.content))
@@ -153,7 +153,7 @@ class Errors(commands.Cog):
         embed.add_field(name="Caused by", value=f"{ctx.message.content}", inline=False)
         await splitDiscordEmbedField(embed, tb, "Traceback")
 
-        errorChannel.send(embed=embed)
+        await errorChannel.send(embed=embed)
         log.error("Error caused by message: `{}`".format(ctx.message.content))
 
     def gen_error_message(self):
