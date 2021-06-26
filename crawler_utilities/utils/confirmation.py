@@ -12,7 +12,7 @@ class Confirmation(Dialog):
 
         self._client = client
         self.color = color
-        self.emojis = {"âœ…": True, "âŒ": False}
+        self.emojis = {"✅": True, "❌": False}
         self._confirmed = None
         self.message = message
         self._embed: discord.Embed = None
