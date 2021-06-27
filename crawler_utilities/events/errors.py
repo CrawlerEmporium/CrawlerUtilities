@@ -8,7 +8,7 @@ from crawler_utilities.utils.embeds import ErrorEmbedWithAuthorWithoutContext
 from discord import Forbidden, HTTPException, InvalidArgument, NotFound
 from discord.ext import commands
 from discord.ext.commands import CommandInvokeError, ExpectedClosingQuoteError, UnexpectedQuoteError
-from crawler_utilities.handlers.errors import CrawlerException, InvalidArgument, EvaluationError
+from crawler_utilities.handlers.errors import CrawlerException, InvalidArgument, EvaluationError, NoSelectionElements
 from crawler_utilities.handlers import logger
 from crawler_utilities.utils.functions import splitDiscordEmbedField
 
@@ -118,6 +118,8 @@ class Errors(commands.Cog):
                         return
             if isinstance(original, NotFound):
                 return await ctx.send("Error: I tried to edit or delete a message that no longer exists.")
+            if isinstance(original, NoSelectionElements):
+                return await ctx.send("Error: There are no choices to select from.")
             if isinstance(original, ValueError) and str(original) in ("No closing quotation", "No escaped character"):
                 return await ctx.send("Error: No closing quotation.")
             if isinstance(original, (ClientResponseError, InvalidArgument, asyncio.TimeoutError, ClientOSError)):
