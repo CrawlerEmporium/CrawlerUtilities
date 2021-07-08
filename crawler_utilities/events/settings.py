@@ -11,6 +11,7 @@ active = "(<:active:851743586583052329> Active)"
 inactive = "(<:inactive:851743586654748672> Inactive)"
 
 fivee = 559331529378103317
+debug = 500280860965077012
 issue = 602779023151595546
 
 settingsTrue = ['-allow_selfClose True', '-allow_milestoneAdding True', '-req_dm_monster True', '-pm_dm True', '-pm_result True', '-rem_commands True', '-rem_rolls True', '-ping_rolls True']
@@ -26,24 +27,22 @@ class Settings(commands.Cog):
         member = await res.guild.fetch_member(res.user.id)
         if member is not None and (res.custom_id in settingsTrue or res.custom_id in settingsFalse):
             if member.guild_permissions.administrator:
-                guild_settings = await self.bot.mdb.lookupsettings.find_one({"server": res.guild.id})
+                guild_settings = await self.bot.settings.find_one({"server": res.guild.id})
                 if guild_settings is None:
                     guild_settings = {}
 
                 splitCustomId = res.custom_id.split(" ")
                 splitArg = (splitCustomId[0], splitCustomId[1])
 
-                print(res.message.author.id)
-
-                if res.message.author.id == fivee:
+                if res.message.author.id == fivee or res.message.author.id == debug:
                     loopedSettings = loopThrough5eSettings(guild_settings, splitArg)
                 elif res.message.author.id == issue:
                     loopedSettings = loopThroughIssueSettings(guild_settings, splitArg)
 
                 await self.bot.settings.update_one({"server": str(res.guild.id)}, {"$set": loopedSettings}, upsert=True)
-                guild_settings = await self.bot.mdb.lookupsettings.find_one({"server": str(res.guild.id)})
+                guild_settings = await self.bot.settings.find_one({"server": str(res.guild.id)})
 
-                if res.message.author.id == fivee:
+                if res.message.author.id == fivee or res.message.author.id == debug:
                     embed = get5eSettingsEmbed(guild_settings, res.author)
                     buttons = get5eSettingsButtons(guild_settings)
                 elif res.message.author.id == issue:
