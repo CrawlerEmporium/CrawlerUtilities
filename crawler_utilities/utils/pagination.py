@@ -67,7 +67,7 @@ class EmbedPaginator(Dialog):
                 Button(style=ButtonStyle.blue, custom_id=self.control_labels[2], emoji=self.control_emojis[2], disabled=fourth),
                 Button(style=ButtonStyle.blue, custom_id=self.control_labels[3], emoji=self.control_emojis[3], disabled=fifth)]
 
-    async def run(self, users: List[discord.User], channel: discord.TextChannel = None, valid=None):
+    async def run(self, users: List[discord.User], channel: discord.TextChannel = None, valid = None):
         """
         Runs the paginator.
 
@@ -90,7 +90,7 @@ class EmbedPaginator(Dialog):
 
         self._embed = self.pages[0]
 
-        if valid is not None:
+        if len(valid) > 0:
             numberedInPages = list(chunkValidIntoPages(valid, 10))
             if len(self.pages) == 1:
                 buttons = getNumberedButtons(numberedInPages[0])
@@ -135,7 +135,7 @@ class EmbedPaginator(Dialog):
                             id = result.custom_id
                             max_index = len(self.pages) - 1  # index for the last page
 
-                            if valid is not None:
+                            if len(valid) > 0:
                                 if id == self.control_labels[0]:
                                     load_page_index = 0
                                     buttons = getNumberedButtons(numberedInPages[load_page_index])
