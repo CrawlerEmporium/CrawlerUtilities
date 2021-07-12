@@ -149,7 +149,7 @@ class Errors(commands.Cog):
         embed = ErrorEmbedWithAuthorWithoutContext(ctx.message.author)
         embed.title = f"Error: {error_msg}"
         try:
-            embed.description = f"Error in channel: **{ctx.channel}** ({ctx.channel.id})\nserver: **{ctx.guild}** ({ctx.guild.id})\n\n{repr(error)}"
+            embed.description = f"Channel: **{ctx.channel}** ({ctx.channel.id})\nServer: **{ctx.guild}** ({ctx.guild.id})\nUser: **{ctx.author.mention}** ({ctx.author.id})\n\n{repr(error)}"
         except:
             embed.description = f"Error in PM with **{ctx.author}** ({ctx.author.id})\n\n{repr(error)}"
         embed.add_field(name="Command Errored", value=f"{ctx.message.content}", inline=False)
