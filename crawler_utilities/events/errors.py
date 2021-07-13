@@ -1,9 +1,11 @@
 import traceback
-
+import d20
 import asyncio
 import random
 
 from aiohttp import ClientResponseError, ClientOSError
+from d20 import TooManyRolls
+
 from crawler_utilities.utils.embeds import ErrorEmbedWithAuthorWithoutContext
 from discord import Forbidden, HTTPException, InvalidArgument, NotFound
 from discord.ext import commands
@@ -105,6 +107,8 @@ class Errors(commands.Cog):
                         log.info(f"Error sending traceback: {e}")
             if isinstance(original, CrawlerException):
                 return await ctx.send(str(original))
+            if isinstance(original, TooManyRolls):
+                return await ctx.send("Error: Too many dice rolled. Maximum is a 1000 at once.")
             if isinstance(original, Forbidden):
                 try:
                     return await ctx.author.send(
