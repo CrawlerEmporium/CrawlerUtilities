@@ -66,12 +66,20 @@ def get_positivity(string):
 
 async def splitDiscordEmbedField(embed, input, embed_field_name):
     texts = []
+    amount = 1024
     while len(input) > 1024:
-        next_text = input[:1024]
-        last_space = next_text.rfind(" ")
-        input = "…" + input[last_space + 1:]
-        next_text = next_text[:last_space] + "…"
-        texts.append(next_text)
+        next_text = input[:amount]
+        if next_text.rfind("**\n```") != -1:
+            tableCheck = next_text.rindex("**\n```")
+            last_space = next_text.rfind("\n```\n", tableCheck)
+            input = input[last_space + 1:]
+            next_text = next_text[:last_space]
+            texts.append(next_text)
+        else:
+            last_space = next_text.rfind(" ")
+            input = "…" + input[last_space + 1:]
+            next_text = next_text[:last_space] + "…"
+            texts.append(next_text)
     texts.append(input)
     embed.add_field(name=embed_field_name, value=texts[0], inline=False)
     for piece in texts[1:]:
