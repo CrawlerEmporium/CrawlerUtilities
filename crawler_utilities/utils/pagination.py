@@ -1,12 +1,20 @@
+from copy import deepcopy
+
 import discord
 import asyncio
+
+from discord import ButtonStyle, Interaction
 from discord.ext import commands
-from copy import deepcopy
 from typing import List
 
-from discord_components import Button, ButtonStyle, Interaction
+from discord.ui import Button
 
 from .abc import Dialog
+from ..handlers.errors import NoSelectionElements
+from ..models.buttons.pagination import Pagination
+
+from itertools import zip_longest
+import random
 
 
 def chunkValidIntoPages(lst, amount):
@@ -16,15 +24,15 @@ def chunkValidIntoPages(lst, amount):
 
 def getNumberedButtons(numbers):
     pages = list(chunkValidIntoPages(numbers, 5))
-    page1 = []
-    page2 = []
+    row1 = []
+    row2 = []
     for x in pages[0]:
-        page1.append(Button(style=ButtonStyle.blue, custom_id=f"choice {x}", label=x))
+        row1.append(Button(style=ButtonStyle.primary, custom_id=f"choice {x}", label=x))
     if len(pages) > 1:
         for x in pages[1]:
-            page2.append(Button(style=ButtonStyle.blue, custom_id=f"choice {x}", label=x))
-        return [page1, page2]
-    return [page1]
+            row2.append(Button(style=ButtonStyle.primary, custom_id=f"choice {x}", label=x))
+        return [row1, row2]
+    return [row2]
 
 
 class EmbedPaginator(Dialog):
@@ -61,13 +69,13 @@ class EmbedPaginator(Dialog):
         return pages
 
     def getPaginationButtons(self, first=False, second=False, fourth=False, fifth=False):
-        return [Button(style=ButtonStyle.blue, custom_id=self.control_labels[0], emoji=self.control_emojis[0], disabled=first),
-                Button(style=ButtonStyle.blue, custom_id=self.control_labels[1], emoji=self.control_emojis[1], disabled=second),
-                Button(style=ButtonStyle.red, custom_id=self.control_labels[4], emoji=self.control_emojis[4]),
-                Button(style=ButtonStyle.blue, custom_id=self.control_labels[2], emoji=self.control_emojis[2], disabled=fourth),
-                Button(style=ButtonStyle.blue, custom_id=self.control_labels[3], emoji=self.control_emojis[3], disabled=fifth)]
+        return [Button(style=ButtonStyle.primary, custom_id=self.control_labels[0], emoji=self.control_emojis[0], disabled=first),
+                Button(style=ButtonStyle.primary, custom_id=self.control_labels[1], emoji=self.control_emojis[1], disabled=second),
+                Button(style=ButtonStyle.danger, custom_id=self.control_labels[4], emoji=self.control_emojis[4]),
+                Button(style=ButtonStyle.primary, custom_id=self.control_labels[2], emoji=self.control_emojis[2], disabled=fourth),
+                Button(style=ButtonStyle.primary, custom_id=self.control_labels[3], emoji=self.control_emojis[3], disabled=fifth)]
 
-    async def run(self, users: List[discord.User], channel: discord.TextChannel = None, valid = None):
+    async def run(self, users: List[discord.User], channel: discord.TextChannel = None, valid=None):
         """
         Runs the paginator.
 
@@ -104,11 +112,11 @@ class EmbedPaginator(Dialog):
             else:
                 buttons = [self.getPaginationButtons(True, True, False, False)]
 
-        self.message = await channel.send(embed=self.formatted_pages[0], components=buttons)
+        self.message = await channel.send(embed=self.formatted_pages[0], view=Pagination(buttons))
         current_page_index = 0
 
         def checkB(i: Interaction):
-            res = (i.message.id == self.message.id) and (i.custom_id in self.control_labels or i.custom_id.split(" ")[1] in valid)
+            res = (i.message.id == self.message.id) and (i.data['custom_id'] in self.control_labels or i.data['custom_id'].split(" ")[1] in valid)
 
             if len(users) > 0:
                 res = res and i.user.id in [u1.id for u1 in users]
@@ -121,7 +129,7 @@ class EmbedPaginator(Dialog):
 
             return res
 
-        click = self._client.wait_for('button_click', check=checkB, timeout=60)
+        click = self._client.wait_for('interaction', check=checkB, timeout=60)
         msg = self._client.wait_for('message', check=checkM, timeout=60)
 
         tasks = [click, msg]
@@ -132,7 +140,7 @@ class EmbedPaginator(Dialog):
                     result = x.result()
                     if result:
                         if isinstance(result, Interaction):
-                            id = result.custom_id
+                            id = result.data['custom_id']
                             max_index = len(self.pages) - 1  # index for the last page
 
                             if len(valid) > 0:
@@ -200,14 +208,14 @@ class EmbedPaginator(Dialog):
                                     await self.message.delete()
                                     return id.split(" ")[1]
 
-                            await result.respond(type=7, embed=self.formatted_pages[load_page_index], components=buttons)
+                            await result.edit_original_message(embed=self.formatted_pages[load_page_index], view=Pagination(buttons))
 
                             current_page_index = load_page_index
 
                             for future in pending:
                                 future.cancel()
 
-                            click = self._client.wait_for('button_click', check=checkB, timeout=60)
+                            click = self._client.wait_for('interaction', check=checkB, timeout=60)
                             msg = self._client.wait_for('message', check=checkM, timeout=60)
 
                             tasks = [msg, click]
@@ -283,3 +291,66 @@ class BotEmbedPaginator(EmbedPaginator):
 
         m = await super().run(users, channel, valid)
         return m
+
+
+def paginate(iterable, n, fillvalue=None):
+    args = [iter(iterable)] * n
+    return [i for i in zip_longest(*args, fillvalue=fillvalue) if i is not None]
+
+
+async def get_selection(ctx,
+                        choices,
+                        message=None,
+                        force_select=False,
+                        title="Multiple Matches Found",
+                        desc="Which one were you looking for? (Type the number or press ⏹ to cancel)\n",
+                        author=False):
+    """Returns the selected choice, or None. Choices should be a list of two-tuples of (name, choice).
+    If delete is True, will delete the selection message and the response.
+    If length of choices is 1, will return the only choice.
+    :raises NoSelectionElements if len(choices) is 0.
+    :raises SelectionCancelled if selection is cancelled."""
+    if len(choices) == 0:
+        raise NoSelectionElements()
+    elif len(choices) == 1 and not force_select:
+        return choices[0][1]
+
+    page = 0
+    pages = paginate(choices, 10)
+    m = None
+    selectMsg = None
+    colour = random.randint(0, 0xffffff)
+    embeds = []
+
+    for x in range(len(pages)):
+        _choices = pages[x]
+        names = [o[0] for o in _choices if o]
+        embed = discord.Embed()
+        if author:
+            embed.set_author(name=title, icon_url=ctx.author.avatar.url)
+        else:
+            embed.title = title
+        selectStr = desc
+        for i, r in enumerate(names):
+            selectStr += f"**[{i + 1 + x * 10}]** - {r}\n"
+        embed.description = selectStr
+        embed.colour = colour
+        if message:
+            embed.add_field(name="Note", value=message)
+        embeds.append(embed)
+
+    if selectMsg:
+        try:
+            await selectMsg.delete()
+        except:
+            pass
+
+    valid = [str(v) for v in range(1, len(choices) + 1)]
+
+    paginator = BotEmbedPaginator(ctx, embeds)
+    m = await paginator.run(valid=valid)
+
+    if m is not None:
+        return choices[int(m) - 1][1]
+    else:
+        return None

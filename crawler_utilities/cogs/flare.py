@@ -1,5 +1,3 @@
-import os
-
 from aiohttp import web
 from discord.ext import commands, tasks
 from crawler_utilities.handlers import logger
