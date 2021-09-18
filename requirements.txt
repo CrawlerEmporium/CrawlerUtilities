@@ -1,2 +1,2 @@
-git+https://github.com/Pycord-Development/pycord.git
+#git+https://github.com/Pycord-Development/pycord.git This needs to be installed
 motor~=2.3.0
