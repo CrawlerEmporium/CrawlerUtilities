@@ -1,4 +1,6 @@
-from discord_components import ButtonStyle, Button
+import discord.ui.view
+from discord import ButtonStyle, Interaction
+from discord.ui import Button
 
 from crawler_utilities.utils.embeds import EmbedWithAuthorWithoutContext
 from discord.ext import commands
@@ -23,15 +25,15 @@ class Settings(commands.Cog):
         self.bot = bot
 
     @commands.Cog.listener()
-    async def on_button_click(self, res):
+    async def on_interaction(self, res: Interaction):
         member = await res.guild.fetch_member(res.user.id)
-        if member is not None and (res.custom_id in settingsTrue or res.custom_id in settingsFalse):
+        if member is not None and (res.data['custom_id'] in settingsTrue or res.data['custom_id'] in settingsFalse):
             if member.guild_permissions.administrator:
                 guild_settings = await self.bot.settings.find_one({"server": res.guild.id})
                 if guild_settings is None:
                     guild_settings = {}
 
-                splitCustomId = res.custom_id.split(" ")
+                splitCustomId = res.data['custom_id'].split(" ")
                 splitArg = (splitCustomId[0], splitCustomId[1])
 
                 if res.message.author.id == fivee or res.message.author.id == debug:
@@ -43,15 +45,15 @@ class Settings(commands.Cog):
                 guild_settings = await self.bot.settings.find_one({"server": str(res.guild.id)})
 
                 if res.message.author.id == fivee or res.message.author.id == debug:
-                    embed = get5eSettingsEmbed(guild_settings, res.author)
+                    embed = get5eSettingsEmbed(guild_settings, res.message.author)
                     buttons = get5eSettingsButtons(guild_settings)
                 elif res.message.author.id == issue:
-                    embed = getIssueSettingsEmbed(guild_settings, res.author)
+                    embed = getIssueSettingsEmbed(guild_settings, res.message.author)
                     buttons = getIssueSettingsButtons(guild_settings)
-                await res.message.edit(embed=embed, components=buttons)
-                await res.respond(type=6)
+                await res.message.edit(embed=embed, view=buttons)
+                await res.response.defer()
             else:
-                await res.respond(content="You need 'Administrator' permissions to change settings on this server.")
+                await res.response.send_message(content="You need 'Administrator' permissions to change settings on this server.")
 
 
 def getIssueSettingsEmbed(settings, author):
@@ -100,8 +102,8 @@ def get5eSettingsEmbed(settings, author):
 
 
 def getIssueSettingsButtons(settings):
-    close = Button(style=ButtonStyle.green, custom_id="-allow_selfClose False") if settings.get('allow_selfClose', True) else Button(style=ButtonStyle.red, custom_id="-allow_selfClose True")
-    milestone = Button(style=ButtonStyle.green, custom_id="-allow_milestoneAdding False") if settings.get('allow_milestoneAdding', False) else Button(style=ButtonStyle.red, custom_id="-allow_milestoneAdding True")
+    close = Button(style=ButtonStyle.green, custom_id="-allow_selfClose False", row=0) if settings.get('allow_selfClose', True) else Button(style=ButtonStyle.red, custom_id="-allow_selfClose True", row=0)
+    milestone = Button(style=ButtonStyle.green, custom_id="-allow_milestoneAdding False", row=1) if settings.get('allow_milestoneAdding', False) else Button(style=ButtonStyle.red, custom_id="-allow_milestoneAdding True", row=1)
 
     close.label = "Self Close"
     close.emoji = "🔒"
@@ -109,16 +111,20 @@ def getIssueSettingsButtons(settings):
     milestone.label = "Add to Milestone"
     milestone.emoji = "🐛"
 
-    return [[close], [milestone]]
+    view = discord.ui.view.View()
+    for x in [close, milestone]:
+        view.add_item(x)
+
+    return view
 
 
 def get5eSettingsButtons(settings):
-    monster = Button(style=ButtonStyle.green, custom_id="-req_dm_monster False") if settings.get('req_dm_monster', True) else Button(style=ButtonStyle.red, custom_id="-req_dm_monster True")
-    dm = Button(style=ButtonStyle.green, custom_id="-pm_dm False") if settings.get('pm_dm', False) else Button(style=ButtonStyle.red, custom_id="-pm_dm True")
-    result = Button(style=ButtonStyle.green, custom_id="-pm_result False") if settings.get('pm_result', False) else Button(style=ButtonStyle.red, custom_id="-pm_result True")
-    commands = Button(style=ButtonStyle.green, custom_id="-rem_commands False") if settings.get('rem_commands', False) else Button(style=ButtonStyle.red, custom_id="-rem_commands True")
-    rolls = Button(style=ButtonStyle.green, custom_id="-rem_rolls False") if settings.get('rem_rolls', True) else Button(style=ButtonStyle.red, custom_id="-rem_rolls True")
-    pingsRolls = Button(style=ButtonStyle.green, custom_id="-ping_rolls False") if settings.get('ping_rolls', True) else Button(style=ButtonStyle.red, custom_id="-ping_rolls True")
+    monster = Button(style=ButtonStyle.green, custom_id="-req_dm_monster False", row=0) if settings.get('req_dm_monster', True) else Button(style=ButtonStyle.red, custom_id="-req_dm_monster True", row=0)
+    dm = Button(style=ButtonStyle.green, custom_id="-pm_dm False", row=0) if settings.get('pm_dm', False) else Button(style=ButtonStyle.red, custom_id="-pm_dm True", row=0)
+    result = Button(style=ButtonStyle.green, custom_id="-pm_result False", row=0) if settings.get('pm_result', False) else Button(style=ButtonStyle.red, custom_id="-pm_result True", row=0)
+    commands = Button(style=ButtonStyle.green, custom_id="-rem_commands False", row=1) if settings.get('rem_commands', False) else Button(style=ButtonStyle.red, custom_id="-rem_commands True", row=1)
+    rolls = Button(style=ButtonStyle.green, custom_id="-rem_rolls False", row=1) if settings.get('rem_rolls', True) else Button(style=ButtonStyle.red, custom_id="-rem_rolls True", row=1)
+    pingsRolls = Button(style=ButtonStyle.green, custom_id="-ping_rolls False", row=1) if settings.get('ping_rolls', True) else Button(style=ButtonStyle.red, custom_id="-ping_rolls True", row=1)
 
     monster.label = "Monster Block"
     monster.emoji = "👺"
@@ -138,7 +144,11 @@ def get5eSettingsButtons(settings):
     pingsRolls.label = "Ping Rolls"
     pingsRolls.emoji = "🔔"
 
-    return [[monster, dm, result], [commands, rolls, pingsRolls]]
+    view = discord.ui.view.View()
+    for x in [monster, dm, result, commands, rolls, pingsRolls]:
+        view.add_item(x)
+
+    return view
 
 
 def loopThroughIssueSettings(guild_settings, args):

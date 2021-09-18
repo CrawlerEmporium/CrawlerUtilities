@@ -8,7 +8,7 @@ class EmbedWithAuthor(discord.Embed):
 
     def __init__(self, ctx, **kwargs):
         super(EmbedWithAuthor, self).__init__(**kwargs)
-        self.set_author(name=ctx.author.display_name, icon_url=ctx.author.avatar_url)
+        self.set_author(name=ctx.author.display_name, icon_url=ctx.author.avatar.url)
         self.colour = random.randint(0, 0xffffff)
 
 
@@ -17,7 +17,7 @@ class EmbedWithAuthorWithoutContext(discord.Embed):
 
     def __init__(self, author, **kwargs):
         super(EmbedWithAuthorWithoutContext, self).__init__(**kwargs)
-        self.set_author(name=author.display_name, icon_url=author.avatar_url)
+        self.set_author(name=author.display_name, icon_url=author.avatar.url)
         self.colour = random.randint(0, 0xffffff)
 
 class ErrorEmbedWithAuthorWithoutContext(discord.Embed):
@@ -25,7 +25,7 @@ class ErrorEmbedWithAuthorWithoutContext(discord.Embed):
 
     def __init__(self, author, **kwargs):
         super(ErrorEmbedWithAuthorWithoutContext, self).__init__(**kwargs)
-        self.set_author(name=author.display_name, icon_url=author.avatar_url)
+        self.set_author(name=author.display_name, icon_url=author.avatar.url)
         self.colour = 0xff0000
 
 

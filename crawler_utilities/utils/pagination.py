@@ -1,10 +1,12 @@
 import discord
 import asyncio
+
+from discord import ButtonStyle, Interaction
 from discord.ext import commands
 from copy import deepcopy
 from typing import List
 
-from discord_components import Button, ButtonStyle, Interaction
+from discord.ui import Button
 
 from .abc import Dialog
 
@@ -15,16 +17,15 @@ def chunkValidIntoPages(lst, amount):
 
 
 def getNumberedButtons(numbers):
+    view = discord.ui.View()
     pages = list(chunkValidIntoPages(numbers, 5))
-    page1 = []
-    page2 = []
     for x in pages[0]:
-        page1.append(Button(style=ButtonStyle.blue, custom_id=f"choice {x}", label=x))
+        view.add_item(Button(style=ButtonStyle.blurple, custom_id=f"choice {x}", label=x, row=0))
     if len(pages) > 1:
         for x in pages[1]:
-            page2.append(Button(style=ButtonStyle.blue, custom_id=f"choice {x}", label=x))
-        return [page1, page2]
-    return [page1]
+            view.add_item(Button(style=ButtonStyle.blurple, custom_id=f"choice {x}", label=x, row=1))
+        return view, 1
+    return view, 0
 
 
 class EmbedPaginator(Dialog):
@@ -60,14 +61,15 @@ class EmbedPaginator(Dialog):
                     page.set_footer(icon_url=page.footer.icon_url, text=f"{page.footer.text} - Page {pages.index(page) + 1}/{len(pages)}")
         return pages
 
-    def getPaginationButtons(self, first=False, second=False, fourth=False, fifth=False):
-        return [Button(style=ButtonStyle.blue, custom_id=self.control_labels[0], emoji=self.control_emojis[0], disabled=first),
-                Button(style=ButtonStyle.blue, custom_id=self.control_labels[1], emoji=self.control_emojis[1], disabled=second),
-                Button(style=ButtonStyle.red, custom_id=self.control_labels[4], emoji=self.control_emojis[4]),
-                Button(style=ButtonStyle.blue, custom_id=self.control_labels[2], emoji=self.control_emojis[2], disabled=fourth),
-                Button(style=ButtonStyle.blue, custom_id=self.control_labels[3], emoji=self.control_emojis[3], disabled=fifth)]
+    def getPaginationButtons(self, view, row, first=False, second=False, fourth=False, fifth=False):
+        view.add_item(Button(style=ButtonStyle.blurple, custom_id=self.control_labels[0], emoji=self.control_emojis[0], disabled=first, row=row))
+        view.add_item(Button(style=ButtonStyle.blurple, custom_id=self.control_labels[1], emoji=self.control_emojis[1], disabled=second, row=row))
+        view.add_item(Button(style=ButtonStyle.red, custom_id=self.control_labels[4], emoji=self.control_emojis[4], row=row))
+        view.add_item(Button(style=ButtonStyle.blurple, custom_id=self.control_labels[2], emoji=self.control_emojis[2], disabled=fourth, row=row))
+        view.add_item(Button(style=ButtonStyle.blurple, custom_id=self.control_labels[3], emoji=self.control_emojis[3], disabled=fifth, row=row))
+        return view
 
-    async def run(self, users: List[discord.User], channel: discord.TextChannel = None, valid = None):
+    async def run(self, users: List[discord.User], channel: discord.TextChannel = None, valid=None):
         """
         Runs the paginator.
 
@@ -93,22 +95,26 @@ class EmbedPaginator(Dialog):
         if len(valid) > 0:
             numberedInPages = list(chunkValidIntoPages(valid, 10))
             if len(self.pages) == 1:
-                buttons = getNumberedButtons(numberedInPages[0])
-                buttons.append([Button(style=ButtonStyle.red, custom_id=self.control_labels[4], emoji=self.control_emojis[4])])
+                view, row = getNumberedButtons(numberedInPages[0])
+                row += 1
+                view.add_item(Button(style=ButtonStyle.red, custom_id=self.control_labels[4], emoji=self.control_emojis[4], row=row))
             else:
-                buttons = getNumberedButtons(numberedInPages[0])
-                buttons.append(self.getPaginationButtons(True, True, False, False))
+                view, row = getNumberedButtons(numberedInPages[0])
+                row += 1
+                view = self.getPaginationButtons(view, row, True, True, False, False)
         else:
             if len(self.pages) == 1:
-                buttons = [Button(style=ButtonStyle.red, custom_id=self.control_labels[4], emoji=self.control_emojis[4])]
+                view = discord.ui.View()
+                view.add_item(Button(style=ButtonStyle.red, custom_id=self.control_labels[4], emoji=self.control_emojis[4], row=0))
             else:
-                buttons = [self.getPaginationButtons(True, True, False, False)]
+                view = discord.ui.View()
+                view = self.getPaginationButtons(view, 0, True, True, False, False)
 
-        self.message = await channel.send(embed=self.formatted_pages[0], components=buttons)
+        self.message = await channel.send(embed=self.formatted_pages[0], view=view)
         current_page_index = 0
 
         def checkB(i: Interaction):
-            res = (i.message.id == self.message.id) and (i.custom_id in self.control_labels or i.custom_id.split(" ")[1] in valid)
+            res = (i.message.id == self.message.id) and (i.data['custom_id'] in self.control_labels or i.data['custom_id'].split(" ")[1] in valid)
 
             if len(users) > 0:
                 res = res and i.user.id in [u1.id for u1 in users]
@@ -121,7 +127,7 @@ class EmbedPaginator(Dialog):
 
             return res
 
-        click = self._client.wait_for('button_click', check=checkB, timeout=60)
+        click = self._client.wait_for('interaction', check=checkB, timeout=60)
         msg = self._client.wait_for('message', check=checkM, timeout=60)
 
         tasks = [click, msg]
@@ -132,35 +138,39 @@ class EmbedPaginator(Dialog):
                     result = x.result()
                     if result:
                         if isinstance(result, Interaction):
-                            id = result.custom_id
+                            id = result.data['custom_id']
                             max_index = len(self.pages) - 1  # index for the last page
 
                             if len(valid) > 0:
                                 if id == self.control_labels[0]:
                                     load_page_index = 0
-                                    buttons = getNumberedButtons(numberedInPages[load_page_index])
-                                    buttons.append(self.getPaginationButtons(True, True, False, False))
+                                    view, row = getNumberedButtons(numberedInPages[load_page_index])
+                                    row += 1
+                                    view = self.getPaginationButtons(view, row, True, True, False, False)
 
                                 elif id == self.control_labels[1]:
                                     load_page_index = current_page_index - 1 if current_page_index > 0 else current_page_index
-                                    buttons = getNumberedButtons(numberedInPages[load_page_index])
+                                    view, row = getNumberedButtons(numberedInPages[load_page_index])
+                                    row += 1
                                     if load_page_index == 0:
-                                        buttons.append(self.getPaginationButtons(True, True, False, False))
+                                        view = self.getPaginationButtons(view, row, True, True, False, False)
                                     else:
-                                        buttons.append(self.getPaginationButtons(False, False, False, False))
+                                        view = self.getPaginationButtons(view, row, False, False, False, False)
 
                                 elif id == self.control_labels[2]:
                                     load_page_index = current_page_index + 1 if current_page_index < max_index else current_page_index
-                                    buttons = getNumberedButtons(numberedInPages[load_page_index])
+                                    view, row = getNumberedButtons(numberedInPages[load_page_index])
+                                    row += 1
                                     if load_page_index == max_index:
-                                        buttons.append(self.getPaginationButtons(False, False, True, True))
+                                        view = self.getPaginationButtons(view, row, False, False, True, True)
                                     else:
-                                        buttons.append(self.getPaginationButtons(False, False, False, False))
+                                        view = self.getPaginationButtons(view, row, False, False, False, False)
 
                                 elif id == self.control_labels[3]:
                                     load_page_index = max_index
-                                    buttons = getNumberedButtons(numberedInPages[load_page_index])
-                                    buttons.append(self.getPaginationButtons(False, False, True, True))
+                                    view, row = getNumberedButtons(numberedInPages[load_page_index])
+                                    row += 1
+                                    view = self.getPaginationButtons(view, row, False, False, True, True)
 
                                 elif id == self.control_labels[4]:
                                     await self.message.delete()
@@ -172,25 +182,25 @@ class EmbedPaginator(Dialog):
                             else:
                                 if id == self.control_labels[0]:
                                     load_page_index = 0
-                                    buttons = [self.getPaginationButtons(True, True, False, False)]
+                                    view = self.getPaginationButtons(view, 0, True, True, False, False)
 
                                 elif id == self.control_labels[1]:
                                     load_page_index = current_page_index - 1 if current_page_index > 0 else current_page_index
                                     if load_page_index == 0:
-                                        buttons = [self.getPaginationButtons(True, True, False, False)]
+                                        view = self.getPaginationButtons(view, 0, True, True, False, False)
                                     else:
-                                        buttons = [self.getPaginationButtons(False, False, False, False)]
+                                        view = self.getPaginationButtons(view, 0, False, False, False, False)
 
                                 elif id == self.control_labels[2]:
                                     load_page_index = current_page_index + 1 if current_page_index < max_index else current_page_index
                                     if load_page_index == max_index:
-                                        buttons = [self.getPaginationButtons(False, False, True, True)]
+                                        view = self.getPaginationButtons(view, 0, False, False, True, True)
                                     else:
-                                        buttons = [self.getPaginationButtons(False, False, False, False)]
+                                        view = self.getPaginationButtons(view, 0, False, False, False, False)
 
                                 elif id == self.control_labels[3]:
                                     load_page_index = max_index
-                                    buttons = [self.getPaginationButtons(False, False, True, True)]
+                                    view = self.getPaginationButtons(view, 0, False, False, True, True)
 
                                 elif id == self.control_labels[4]:
                                     await self.message.delete()
@@ -200,14 +210,15 @@ class EmbedPaginator(Dialog):
                                     await self.message.delete()
                                     return id.split(" ")[1]
 
-                            await result.respond(type=7, embed=self.formatted_pages[load_page_index], components=buttons)
+                            await result.response.defer()
+                            await result.message.edit(embed=self.formatted_pages[load_page_index], view=view)
 
                             current_page_index = load_page_index
 
                             for future in pending:
                                 future.cancel()
 
-                            click = self._client.wait_for('button_click', check=checkB, timeout=60)
+                            click = self._client.wait_for('interaction', check=checkB, timeout=60)
                             msg = self._client.wait_for('message', check=checkM, timeout=60)
 
                             tasks = [msg, click]
@@ -223,22 +234,6 @@ class EmbedPaginator(Dialog):
             except asyncio.TimeoutError:
                 await self.message.delete()
                 return
-
-    @staticmethod
-    def generate_sub_lists(l: list) -> [list]:
-        if len(l) > 25:
-            sub_lists = []
-
-            while len(l) > 20:
-                sub_lists.append(l[:20])
-                del l[:20]
-
-            sub_lists.append(l)
-
-        else:
-            sub_lists = [l]
-
-        return sub_lists
 
 
 class BotEmbedPaginator(EmbedPaginator):
