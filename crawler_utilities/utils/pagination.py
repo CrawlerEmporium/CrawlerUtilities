@@ -180,6 +180,7 @@ class EmbedPaginator(Dialog):
                                     await self.message.delete()
                                     return id.split(" ")[1]
                             else:
+                                view = discord.ui.View()
                                 if id == self.control_labels[0]:
                                     load_page_index = 0
                                     view = self.getPaginationButtons(view, 0, True, True, False, False)
