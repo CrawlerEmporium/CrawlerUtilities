@@ -69,7 +69,7 @@ class EmbedPaginator(Dialog):
     def getPaginationButtons(self, view, row, first=False, second=False, fourth=False, fifth=False):
         view.add_item(Button(style=ButtonStyle.primary, custom_id=self.control_labels[0], emoji=self.control_emojis[0], disabled=first, row=row))
         view.add_item(Button(style=ButtonStyle.primary, custom_id=self.control_labels[1], emoji=self.control_emojis[1], disabled=second, row=row))
-        view.add_item(Button(style=ButtonStyle.red, custom_id=self.control_labels[4], emoji=self.control_emojis[4], row=row))
+        view.add_item(Button(style=ButtonStyle.danger, custom_id=self.control_labels[4], emoji=self.control_emojis[4], row=row))
         view.add_item(Button(style=ButtonStyle.primary, custom_id=self.control_labels[2], emoji=self.control_emojis[2], disabled=fourth, row=row))
         view.add_item(Button(style=ButtonStyle.primary, custom_id=self.control_labels[3], emoji=self.control_emojis[3], disabled=fifth, row=row))
         return view
@@ -102,7 +102,7 @@ class EmbedPaginator(Dialog):
             if len(self.pages) == 1:
                 view, row = getNumberedButtons(numberedInPages[0])
                 row += 1
-                view.add_item(Button(style=ButtonStyle.red, custom_id=self.control_labels[4], emoji=self.control_emojis[4], row=row))
+                view.add_item(Button(style=ButtonStyle.danger, custom_id=self.control_labels[4], emoji=self.control_emojis[4], row=row))
             else:
                 view, row = getNumberedButtons(numberedInPages[0])
                 row += 1
@@ -110,7 +110,7 @@ class EmbedPaginator(Dialog):
         else:
             if len(self.pages) == 1:
                 view = discord.ui.View()
-                view.add_item(Button(style=ButtonStyle.red, custom_id=self.control_labels[4], emoji=self.control_emojis[4], row=0))
+                view.add_item(Button(style=ButtonStyle.danger, custom_id=self.control_labels[4], emoji=self.control_emojis[4], row=0))
             else:
                 view = discord.ui.View()
                 view = self.getPaginationButtons(view, 0, True, True, False, False)
