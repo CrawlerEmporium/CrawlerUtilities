@@ -102,8 +102,8 @@ def get5eSettingsEmbed(settings, author):
 
 
 def getIssueSettingsButtons(settings):
-    close = Button(style=ButtonStyle.success, custom_id="-allow_selfClose False", row=0) if settings.get('allow_selfClose', True) else Button(style=ButtonStyle.danger, custom_id="-allow_selfClose True", row=0)
-    milestone = Button(style=ButtonStyle.success, custom_id="-allow_milestoneAdding False", row=1) if settings.get('allow_milestoneAdding', False) else Button(style=ButtonStyle.danger, custom_id="-allow_milestoneAdding True", row=1)
+    close = Button(style=3, custom_id="-allow_selfClose False", row=0) if settings.get('allow_selfClose', True) else Button(style=4, custom_id="-allow_selfClose True", row=0)
+    milestone = Button(style=3, custom_id="-allow_milestoneAdding False", row=1) if settings.get('allow_milestoneAdding', False) else Button(style=4, custom_id="-allow_milestoneAdding True", row=1)
 
     close.label = "Self Close"
     close.emoji = "🔒"
@@ -119,12 +119,12 @@ def getIssueSettingsButtons(settings):
 
 
 def get5eSettingsButtons(settings):
-    monster = Button(style=ButtonStyle.success, custom_id="-req_dm_monster False", row=0) if settings.get('req_dm_monster', True) else Button(style=ButtonStyle.danger, custom_id="-req_dm_monster True", row=0)
-    dm = Button(style=ButtonStyle.success, custom_id="-pm_dm False", row=0) if settings.get('pm_dm', False) else Button(style=ButtonStyle.danger, custom_id="-pm_dm True", row=0)
-    result = Button(style=ButtonStyle.success, custom_id="-pm_result False", row=0) if settings.get('pm_result', False) else Button(style=ButtonStyle.danger, custom_id="-pm_result True", row=0)
-    commands = Button(style=ButtonStyle.success, custom_id="-rem_commands False", row=1) if settings.get('rem_commands', False) else Button(style=ButtonStyle.danger, custom_id="-rem_commands True", row=1)
-    rolls = Button(style=ButtonStyle.success, custom_id="-rem_rolls False", row=1) if settings.get('rem_rolls', True) else Button(style=ButtonStyle.danger, custom_id="-rem_rolls True", row=1)
-    pingsRolls = Button(style=ButtonStyle.success, custom_id="-ping_rolls False", row=1) if settings.get('ping_rolls', True) else Button(style=ButtonStyle.danger, custom_id="-ping_rolls True", row=1)
+    monster = Button(style=3, custom_id="-req_dm_monster False", row=0) if settings.get('req_dm_monster', True) else Button(style=4, custom_id="-req_dm_monster True", row=0)
+    dm = Button(style=3, custom_id="-pm_dm False", row=0) if settings.get('pm_dm', False) else Button(style=4, custom_id="-pm_dm True", row=0)
+    result = Button(style=3, custom_id="-pm_result False", row=0) if settings.get('pm_result', False) else Button(style=4, custom_id="-pm_result True", row=0)
+    commands = Button(style=3, custom_id="-rem_commands False", row=1) if settings.get('rem_commands', False) else Button(style=4, custom_id="-rem_commands True", row=1)
+    rolls = Button(style=3, custom_id="-rem_rolls False", row=1) if settings.get('rem_rolls', True) else Button(style=4, custom_id="-rem_rolls True", row=1)
+    pingsRolls = Button(style=3, custom_id="-ping_rolls False", row=1) if settings.get('ping_rolls', True) else Button(style=4, custom_id="-ping_rolls True", row=1)
 
     monster.label = "Monster Block"
     monster.emoji = "👺"
