@@ -25,10 +25,10 @@ def getNumberedButtons(numbers):
     view = discord.ui.View()
     pages = list(chunkValidIntoPages(numbers, 5))
     for x in pages[0]:
-        view.add_item(Button(style=ButtonStyle.blurple, custom_id=f"choice {x}", label=x, row=0))
+        view.add_item(Button(style=ButtonStyle.primary, custom_id=f"choice {x}", label=x, row=0))
     if len(pages) > 1:
         for x in pages[1]:
-            view.add_item(Button(style=ButtonStyle.blurple, custom_id=f"choice {x}", label=x, row=1))
+            view.add_item(Button(style=ButtonStyle.primary, custom_id=f"choice {x}", label=x, row=1))
         return view, 1
     return view, 0
 
@@ -67,11 +67,11 @@ class EmbedPaginator(Dialog):
         return pages
 
     def getPaginationButtons(self, view, row, first=False, second=False, fourth=False, fifth=False):
-        view.add_item(Button(style=ButtonStyle.blurple, custom_id=self.control_labels[0], emoji=self.control_emojis[0], disabled=first, row=row))
-        view.add_item(Button(style=ButtonStyle.blurple, custom_id=self.control_labels[1], emoji=self.control_emojis[1], disabled=second, row=row))
+        view.add_item(Button(style=ButtonStyle.primary, custom_id=self.control_labels[0], emoji=self.control_emojis[0], disabled=first, row=row))
+        view.add_item(Button(style=ButtonStyle.primary, custom_id=self.control_labels[1], emoji=self.control_emojis[1], disabled=second, row=row))
         view.add_item(Button(style=ButtonStyle.red, custom_id=self.control_labels[4], emoji=self.control_emojis[4], row=row))
-        view.add_item(Button(style=ButtonStyle.blurple, custom_id=self.control_labels[2], emoji=self.control_emojis[2], disabled=fourth, row=row))
-        view.add_item(Button(style=ButtonStyle.blurple, custom_id=self.control_labels[3], emoji=self.control_emojis[3], disabled=fifth, row=row))
+        view.add_item(Button(style=ButtonStyle.primary, custom_id=self.control_labels[2], emoji=self.control_emojis[2], disabled=fourth, row=row))
+        view.add_item(Button(style=ButtonStyle.primary, custom_id=self.control_labels[3], emoji=self.control_emojis[3], disabled=fifth, row=row))
         return view
 
     async def run(self, users: List[discord.User], channel: discord.TextChannel = None, valid=None):
