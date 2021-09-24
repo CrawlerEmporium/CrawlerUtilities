@@ -36,10 +36,10 @@ class Confirmation(Dialog):
             title=text,
             color=self.color
         )
-        emb.set_author(
-            name=str(user),
-            icon_url=user.avatar.url if user.avatar is not None else None
-        )
+        if user.avatar is not None:
+            emb.set_author(name=str(user),icon_url=user.avatar.url)
+        else:
+            emb.set_author(name=str(user))
 
         self._embed = emb
 
