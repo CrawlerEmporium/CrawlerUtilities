@@ -319,7 +319,7 @@ async def get_selection(ctx,
         names = [o[0] for o in _choices if o]
         embed = discord.Embed()
         if author:
-            embed.set_author(name=title, icon_url=ctx.author.avatar.url)
+            embed.set_author(name=title, icon_url=ctx.author.display_avatar.url)
         else:
             embed.title = title
         selectStr = desc
