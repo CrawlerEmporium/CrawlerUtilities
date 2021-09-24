@@ -3,11 +3,12 @@ from itertools import zip_longest
 import discord
 import asyncio
 
-from discord import ButtonStyle, Interaction
 from discord.ext import commands
 from copy import deepcopy
 from typing import List
 
+from discord.interactions import Interaction
+from discord.types.components import ButtonStyle
 from discord.ui import Button
 
 from .abc import Dialog
