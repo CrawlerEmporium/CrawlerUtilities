@@ -1,10 +1,9 @@
 import traceback
-import d20
 import asyncio
 import random
 
 from aiohttp import ClientResponseError, ClientOSError
-from d20 import TooManyRolls, RollSyntaxError
+from d20 import TooManyRolls, RollSyntaxError, RollValueError
 
 from crawler_utilities.utils.embeds import ErrorEmbedWithAuthorWithoutContext
 from discord import Forbidden, HTTPException, InvalidArgument, NotFound
@@ -126,6 +125,8 @@ class Errors(commands.Cog):
                 return await sendEmbedError(ctx, "Too many dice rolled. Maximum is a 1000 at once.")
             if isinstance(original, RollSyntaxError):
                 return await sendEmbedError(ctx, f"Your dice syntax is off, please check ``{ctx.prefix}help roll`` for the correct usage of this command.\nYou used the following syntax: ``{ctx.message.content}``")
+            if isinstance(original, RollValueError):
+                return await sendEmbedError(ctx, f"You tried to roll a d0, with did you expect to happen?")
             if isinstance(original, Forbidden):
                 try:
                     return await sendAuthorEmbedError(ctx,
