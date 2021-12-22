@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="CrawlerUtilities",
-    version="0.0.23",
+    version="0.0.24",
     license="MIT",
     author="LordDusk",
     author_email="mail@crawleremporium.com",
@@ -12,5 +12,5 @@ setup(
     url="https://github.com/CrawlerEmporium/CrawlerUtilities",
     packages=find_packages(),
     install_requires=open("requirements.txt").readlines(),
-    python_requires=">=3.7",
+    python_requires=">=3.8",
 )

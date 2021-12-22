@@ -1,3 +1,4 @@
+from discord.ext import pages
 from itertools import zip_longest
 
 import discord
@@ -216,8 +217,8 @@ class EmbedPaginator(Dialog):
                                     await self.message.delete()
                                     return id.split(" ")[1]
 
-                            await result.response.defer()
-                            await result.message.edit(embed=self.formatted_pages[load_page_index], view=view)
+                            await result.response.pong()
+                            await result.edit_original_message(embed=self.formatted_pages[load_page_index], view=view)
 
                             current_page_index = load_page_index
 
