@@ -25,7 +25,7 @@ class CommandStats(commands.Cog):
 
 
 async def user_activity(ctx, name):
-    track_google_analytics_event(name, f"{ctx.command.qualified_name}", f"{ctx.author.id}")
+    track_google_analytics_event(f"{name}: User", f"{ctx.command.qualified_name}", f"{ctx.author.id}")
 
 
 async def guild_activity(ctx, name):
@@ -33,14 +33,14 @@ async def guild_activity(ctx, name):
         guild_id = 0
     else:
         guild_id = ctx.guild.id
-    track_google_analytics_event(name, f"{ctx.command.qualified_name}", f"{guild_id}")
+    track_google_analytics_event(f"{name}: Guild", f"{ctx.command.qualified_name}", f"{guild_id}")
 
 
 async def command_activity(ctx, name):
     track_google_analytics_event(name, f"{ctx.command.qualified_name}", "")
 
 
-def track_google_analytics_event(event_category, event_action, event_label):
+def track_google_analytics_event(event_category, event_action, event_label, client):
     url = "https://www.google-analytics.com/collect"
     data = {
         "v": "1",
