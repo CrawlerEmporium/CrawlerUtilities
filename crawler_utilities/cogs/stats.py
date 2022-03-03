@@ -40,7 +40,7 @@ async def command_activity(ctx, name):
     track_google_analytics_event(name, f"{ctx.command.qualified_name}", "")
 
 
-def track_google_analytics_event(event_category, event_action, event_label, client):
+def track_google_analytics_event(event_category, event_action, event_label):
     url = "https://www.google-analytics.com/collect"
     data = {
         "v": "1",
