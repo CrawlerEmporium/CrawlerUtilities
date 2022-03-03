@@ -5,5 +5,6 @@ env = Env()
 env.read_env()
 
 MONGODB = env('MONGODB')
+GOOGLEANALYTICSID = env('GOOGLEANALYTICSID')
 
 HELP = motor.motor_asyncio.AsyncIOMotorClient(MONGODB)['lookup']
