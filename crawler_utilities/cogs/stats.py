@@ -19,34 +19,35 @@ class CommandStats(commands.Cog):
     @commands.Cog.listener()
     async def on_command(self, ctx):
         name = self.bot.user.name
-        await user_activity(ctx, name)
-        await guild_activity(ctx, name)
-        await command_activity(ctx, name)
+        now = str(datetime.now())
+        await user_activity(ctx, name, now)
+        await guild_activity(ctx, name, now)
+        await command_activity(ctx, name, now)
 
 
-async def user_activity(ctx, name):
-    track_google_analytics_event(f"{name}: User", f"{ctx.command.qualified_name}", f"{ctx.author.id}")
+async def user_activity(ctx, name, client):
+    track_google_analytics_event(f"{name}: User", f"{ctx.command.qualified_name}", f"{ctx.author.id}", client)
 
 
-async def guild_activity(ctx, name):
+async def guild_activity(ctx, name, client):
     if ctx.guild is None:
         guild_id = 0
     else:
         guild_id = ctx.guild.id
-    track_google_analytics_event(f"{name}: Guild", f"{ctx.command.qualified_name}", f"{guild_id}")
+    track_google_analytics_event(f"{name}: Guild", f"{ctx.command.qualified_name}", f"{guild_id}", client)
 
 
-async def command_activity(ctx, name):
-    track_google_analytics_event(name, f"{ctx.command.qualified_name}", "")
+async def command_activity(ctx, name, client):
+    track_google_analytics_event(name, f"{ctx.command.qualified_name}", "", client)
 
 
-def track_google_analytics_event(event_category, event_action, event_label):
+def track_google_analytics_event(event_category, event_action, event_label, client):
     url = "https://www.google-analytics.com/collect"
     data = {
         "v": "1",
         "t": "event",
         "tid": GOOGLEANALYTICSID,
-        "cid": str(datetime.now()),
+        "cid": client,
         "ec": event_category,
         "ea": event_action,
         "el": event_label,
