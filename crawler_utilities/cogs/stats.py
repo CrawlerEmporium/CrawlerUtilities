@@ -2,6 +2,7 @@ from datetime import datetime
 
 import requests
 import time
+from discord import InteractionType
 
 from discord.ext import commands
 
@@ -18,27 +19,46 @@ class CommandStats(commands.Cog):
 
     @commands.Cog.listener()
     async def on_command(self, ctx):
-        name = self.bot.user.name
-        now = str(datetime.now())
-        await user_activity(ctx, name, now)
-        await guild_activity(ctx, name, now)
-        await command_activity(ctx, name, now)
+        bot_name = self.bot.user.name
+        author = ctx.user.id
+        if ctx.guild_id is None:
+            guild = 0
+        else:
+            guild = ctx.guild_id
+        client_id = str(datetime.now())
+        command = ctx.command.qualified_name
+        await user_activity(bot_name, command, author, client_id)
+        await guild_activity(bot_name, command, guild, client_id)
+        await command_activity(bot_name, command, client_id)
+
+    @commands.Cog.listener()
+    async def on_interaction(self, interaction):
+        if interaction.type != InteractionType.application_command:
+            return
+
+        bot_name = self.bot.user.name
+        author = interaction.user.id
+        if interaction.guild_id is None:
+            guild = 0
+        else:
+            guild = interaction.guild_id
+        command = interaction.data.get('name')
+        client_id = str(datetime.now())
+        await user_activity(bot_name, command, author, client_id)
+        await guild_activity(bot_name, command, guild, client_id)
+        await command_activity(bot_name, command, client_id)
 
 
-async def user_activity(ctx, name, client):
-    track_google_analytics_event(f"{name}: User", f"{ctx.command.qualified_name}", f"{ctx.author.id}", client)
+async def user_activity(bot_name, command, author, client_id):
+    track_google_analytics_event(f"{bot_name}: User", f"{command}", f"{author}", client_id)
 
 
-async def guild_activity(ctx, name, client):
-    if ctx.guild is None:
-        guild_id = 0
-    else:
-        guild_id = ctx.guild.id
-    track_google_analytics_event(f"{name}: Guild", f"{ctx.command.qualified_name}", f"{guild_id}", client)
+async def guild_activity(bot_name, command, guild, client_id):
+    track_google_analytics_event(f"{bot_name}: Guild", f"{command}", f"{guild}", client_id)
 
 
-async def command_activity(ctx, name, client):
-    track_google_analytics_event(name, f"{ctx.command.qualified_name}", "", client)
+async def command_activity(bot_name, command, client_id):
+    track_google_analytics_event(bot_name, f"{command}", "", client_id)
 
 
 def track_google_analytics_event(event_category, event_action, event_label, client):
