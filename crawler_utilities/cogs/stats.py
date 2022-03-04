@@ -21,10 +21,10 @@ class CommandStats(commands.Cog):
     async def on_command(self, ctx):
         bot_name = self.bot.user.name
         author = ctx.author.id
-        if ctx.guild_id is None:
+        if ctx.guild.id is None:
             guild = 0
         else:
-            guild = ctx.guild_id
+            guild = ctx.guild.id
         client_id = str(datetime.now())
         command = ctx.command.qualified_name
         await user_activity(bot_name, command, author, client_id)
