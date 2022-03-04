@@ -61,7 +61,16 @@ async def command_activity(bot_name, command, client_id):
     track_google_analytics_event(bot_name, f"{command}", "", client_id)
 
 
-def track_google_analytics_event(event_category, event_action, event_label, client):
+def track_google_analytics_event(event_category, event_action, event_label, client=None):
+    """
+    Track an event to Google Analytics
+    :param event_category: Event Category
+    :param event_action: Event Action
+    :param event_label: Event Label
+    :param client: Specific Client Id for the Events
+    """
+    if client is None:
+        client = str(datetime.now())
     url = "https://www.google-analytics.com/collect"
     data = {
         "v": "1",
