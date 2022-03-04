@@ -9,8 +9,8 @@ from crawler_utilities.utils.functions import get_positivity
 
 log = logger.logger
 
-active = "(<:active:851743586583052329> Active)"
-inactive = "(<:inactive:851743586654748672> Inactive)"
+active = "(<:active:949311836090671124> Active)"
+inactive = "(<:inactive:949311835939688498> Inactive)"
 
 fivee = 559331529378103317
 debug = 500280860965077012
@@ -27,33 +27,35 @@ class Settings(commands.Cog):
     @commands.Cog.listener()
     async def on_interaction(self, res: Interaction):
         member = await res.guild.fetch_member(res.user.id)
-        if member is not None and (res.data['custom_id'] in settingsTrue or res.data['custom_id'] in settingsFalse):
-            if member.guild_permissions.administrator:
-                guild_settings = await self.bot.settings.find_one({"server": res.guild.id})
-                if guild_settings is None:
-                    guild_settings = {}
+        data = res.data.get("custom_id", None)
+        if data is not None:
+            if member is not None and (data in settingsTrue or data in settingsFalse):
+                if member.guild_permissions.administrator:
+                    guild_settings = await self.bot.settings.find_one({"server": res.guild.id})
+                    if guild_settings is None:
+                        guild_settings = {}
 
-                splitCustomId = res.data['custom_id'].split(" ")
-                splitArg = (splitCustomId[0], splitCustomId[1])
+                    splitCustomId = res.data['custom_id'].split(" ")
+                    splitArg = (splitCustomId[0], splitCustomId[1])
 
-                if res.message.author.id == fivee or res.message.author.id == debug:
-                    loopedSettings = loopThrough5eSettings(guild_settings, splitArg)
-                elif res.message.author.id == issue:
-                    loopedSettings = loopThroughIssueSettings(guild_settings, splitArg)
+                    if res.message.author.id == fivee or res.message.author.id == debug:
+                        loopedSettings = loopThrough5eSettings(guild_settings, splitArg)
+                    elif res.message.author.id == issue:
+                        loopedSettings = loopThroughIssueSettings(guild_settings, splitArg)
 
-                await self.bot.settings.update_one({"server": str(res.guild.id)}, {"$set": loopedSettings}, upsert=True)
-                guild_settings = await self.bot.settings.find_one({"server": str(res.guild.id)})
+                    await self.bot.settings.update_one({"server": str(res.guild.id)}, {"$set": loopedSettings}, upsert=True)
+                    guild_settings = await self.bot.settings.find_one({"server": str(res.guild.id)})
 
-                if res.message.author.id == fivee or res.message.author.id == debug:
-                    embed = get5eSettingsEmbed(guild_settings, res.message.author)
-                    buttons = get5eSettingsButtons(guild_settings)
-                elif res.message.author.id == issue:
-                    embed = getIssueSettingsEmbed(guild_settings, res.message.author)
-                    buttons = getIssueSettingsButtons(guild_settings)
-                await res.message.edit(embed=embed, view=buttons)
-                await res.response.defer()
-            else:
-                await res.response.send_message(content="You need 'Administrator' permissions to change settings on this server.")
+                    if res.message.author.id == fivee or res.message.author.id == debug:
+                        embed = get5eSettingsEmbed(guild_settings, res.message.author)
+                        buttons = get5eSettingsButtons(guild_settings)
+                    elif res.message.author.id == issue:
+                        embed = getIssueSettingsEmbed(guild_settings, res.message.author)
+                        buttons = getIssueSettingsButtons(guild_settings)
+                    await res.message.edit(embed=embed, view=buttons)
+                    await res.response.defer()
+                else:
+                    await res.response.send_message(content="You need 'Administrator' permissions to change settings on this server.")
 
 
 def getIssueSettingsEmbed(settings, author):

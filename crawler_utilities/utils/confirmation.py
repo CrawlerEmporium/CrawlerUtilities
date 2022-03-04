@@ -21,7 +21,7 @@ class Confirmation(Dialog):
     def confirmed(self):
         return self._confirmed
 
-    async def confirm(self, text: str, user: discord.User, channel: discord.TextChannel = None)\
+    async def confirm(self, text: str, user: discord.User, channel = None)\
             -> bool or None:
         """
 
@@ -78,7 +78,7 @@ class BotConfirmation(Confirmation):
 
         super().__init__(ctx.bot, color, message)
 
-    async def confirm(self, text: str, user: discord.User = None, channel: discord.TextChannel = None) \
+    async def confirm(self, text: str, user: discord.User = None, channel = None) \
             -> bool or None:
 
         if user is None:

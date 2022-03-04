@@ -8,7 +8,7 @@ from d20 import TooManyRolls, RollSyntaxError, RollValueError
 from crawler_utilities.utils.embeds import ErrorEmbedWithAuthorWithoutContext
 from discord import Forbidden, HTTPException, InvalidArgument, NotFound
 from discord.ext import commands
-from discord.ext.commands import CommandInvokeError, ExpectedClosingQuoteError, UnexpectedQuoteError
+from discord.ext.commands import CommandInvokeError, ExpectedClosingQuoteError, UnexpectedQuoteError, CheckFailure
 from crawler_utilities.handlers.errors import CrawlerException, InvalidArgument, EvaluationError, NoSelectionElements
 from crawler_utilities.handlers import logger
 from crawler_utilities.utils.functions import splitDiscordEmbedField
@@ -70,7 +70,6 @@ async def sendEmbedError(ctx, description, title=None):
     else:
         embed.title = f"Error in command - {ctx.message.content}"
     embed.description = description
-    print("sending embed error.")
     await ctx.send(embed=embed)
 
 
@@ -139,7 +138,7 @@ class Errors(commands.Cog):
                     except:
                         return
             if isinstance(original, NotFound):
-                return await sendEmbedError(ctx, "I tried to edit or delete a message that no longer exists.")
+                return await sendEmbedError(ctx, "I tried to edit or delete a message that doesn't exist.")
             if isinstance(original, NoSelectionElements):
                 return await sendEmbedError(ctx, "There are no choices to select from.")
             if isinstance(original, ValueError) and str(original) in ("No closing quotation", "No escaped character"):
@@ -160,9 +159,10 @@ class Errors(commands.Cog):
             if isinstance(original, KeyError):
                 if str(original) == "'content-type'":
                     return await sendEmbedError(ctx, f"The command errored on Discord's side. I can't do anything about this, Sorry.\nPlease check https://status.discordapp.com for the status on the Discord API, and try again later.")
+            if isinstance(original, CheckFailure):
+                return await ctx.respond("You do not have the required permissions to use this command.", ephemeral=True)
 
         error_msg = self.gen_error_message()
-        print(error_msg)
 
         await sendEmbedError(ctx,
                              f"Uh oh, that wasn't supposed to happen! "
