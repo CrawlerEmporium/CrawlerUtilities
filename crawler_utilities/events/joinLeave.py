@@ -7,6 +7,7 @@ from crawler_utilities.handlers import logger
 
 log = logger.logger
 
+
 class JoinLeave(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
@@ -32,7 +33,7 @@ class JoinLeave(commands.Cog):
         except:
             pass
         await tracker.send(embed=embed)
-        await self.bot.change_presence(activity=discord.Game(f"with {len(self.bot.guilds)} servers | {self.bot.defaultPrefix}help | v{self.bot.version}"), afk=True)
+        await self.bot.change_presence(activity=discord.Game(f"with {len(self.bot.guilds)} servers | {self.bot.defaultPrefix}help | v{self.bot.version}"))
 
     @commands.Cog.listener()
     async def on_guild_remove(self, guild):
@@ -55,7 +56,7 @@ class JoinLeave(commands.Cog):
         except:
             pass
         await tracker.send(embed=embed)
-        await self.bot.change_presence(activity=discord.Game(f"with {len(self.bot.guilds)} servers | {self.bot.defaultPrefix}help | v{self.bot.version}"), afk=True)
+        await self.bot.change_presence(activity=discord.Game(f"with {len(self.bot.guilds)} servers | {self.bot.defaultPrefix}help | v{self.bot.version}"))
 
 
 def setup(bot):
