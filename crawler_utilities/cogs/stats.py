@@ -25,7 +25,7 @@ class CommandStats(commands.Cog):
             guild = 0
         else:
             guild = ctx.guild.id
-        client_id = str(datetime.now())
+        client_id = author
         command = ctx.command.qualified_name
         await user_activity(bot_name, command, author, client_id)
         await guild_activity(bot_name, command, guild, client_id)
@@ -43,7 +43,7 @@ class CommandStats(commands.Cog):
         else:
             guild = interaction.guild_id
         command = interaction.data.get('name')
-        client_id = str(datetime.now())
+        client_id = author
         await user_activity(bot_name, command, author, client_id)
         await guild_activity(bot_name, command, guild, client_id)
         await command_activity(bot_name, command, client_id)
@@ -76,7 +76,7 @@ def track_google_analytics_event(event_category, event_action, event_label, clie
         "v": "1",
         "t": "event",
         "tid": GOOGLEANALYTICSID,
-        "cid": client,
+        "uid": client,
         "ec": event_category,
         "ea": event_action,
         "el": event_label,
