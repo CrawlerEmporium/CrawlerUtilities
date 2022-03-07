@@ -71,6 +71,8 @@ def track_google_analytics_event(event_category, event_action, event_label, clie
     """
     if client is None:
         client = str(datetime.now())
+    if isinstance(event_label, str):
+        event_label = event_label.lower()
     url = "https://www.google-analytics.com/collect"
     data = {
         "v": "1",
