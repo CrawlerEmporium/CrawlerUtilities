@@ -64,26 +64,24 @@ def get_positivity(string):
         return None
 
 
+
 async def splitDiscordEmbedField(embed, input, embed_field_name):
     texts = []
-    amount = 1024
-    while len(input) > 1024:
-        next_text = input[:amount]
-        if next_text.rfind("**\n```") != -1:
-            tableCheck = next_text.rindex("**\n```")
-            last_space = next_text.rfind("\n```\n", tableCheck)
-            input = input[last_space + 1:]
-            next_text = next_text[:last_space]
-            texts.append(next_text)
-        else:
-            last_space = next_text.rfind(" ")
-            input = "…" + input[last_space + 1:]
-            next_text = next_text[:last_space] + "…"
-            texts.append(next_text)
+    input = await whileSplit(input, texts, 1024)
     texts.append(input)
     embed.add_field(name=embed_field_name, value=texts[0], inline=False)
     for piece in texts[1:]:
         embed.add_field(name="** **", value=piece, inline=False)
+
+
+async def whileSplit(input, texts, amount):
+    while len(input) > amount:
+        next_text = input[:amount]
+        last_space = next_text.rfind(" ")
+        input = "…" + input[last_space + 1:]
+        next_text = next_text[:last_space] + "…"
+        texts.append(next_text)
+    return input
 
 
 async def safeEmbed(embed_queue, title, desc, color):
@@ -96,12 +94,7 @@ async def safeEmbed(embed_queue, title, desc, color):
     else:
         embed_queue.append(discord.Embed(colour=color, title=title))
         texts = []
-        while len(desc) > 2040:
-            next_text = desc[:2040]
-            last_space = next_text.rfind(" ")
-            desc = "…" + desc[last_space + 1:]
-            next_text = next_text[:last_space] + "…"
-            texts.append(next_text)
+        desc = await whileSplit(desc, texts, 2040)
         texts.append(desc)
         embed_queue[-1].description = texts[0]
         for t in texts[1:]:
