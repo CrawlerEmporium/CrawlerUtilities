@@ -91,6 +91,34 @@ def track_google_analytics_event(event_category, event_action, event_label, clie
     requests.post(url, params=data, headers=headers)
 
 
+def track_google_analytics_event_values(event_category, event_action, event_value, client=None):
+    """
+    Track an event to Google Analytics
+    :param event_category: Event Category
+    :param event_action: Event Action
+    :param event_label: Event Label
+    :param client: Specific Client Id for the Events
+    """
+    if client is None:
+        client = str(datetime.now())
+    url = "https://www.google-analytics.com/collect"
+    data = {
+        "v": "1",
+        "t": "event",
+        "tid": GOOGLEANALYTICSID,
+        "cid": client,
+        "ec": event_category,
+        "ea": event_action,
+        "ev": event_value,
+        "aip": "1"
+    }
+    headers = {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.76 Safari/537.36',
+        'cache-control': "no-cache"
+    }
+    requests.post(url, params=data, headers=headers)
+
+
 def setup(bot):
     log.info("[Cogs] Stats...")
     bot.add_cog(CommandStats(bot))
