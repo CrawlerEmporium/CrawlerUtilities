@@ -21,7 +21,7 @@ class CommandStats(commands.Cog):
     async def on_command(self, ctx):
         bot_name = self.bot.user.name
         author = ctx.author.id
-        if ctx.guild.id is None:
+        if ctx.guild is None:
             guild = 0
         else:
             guild = ctx.guild.id
