@@ -26,6 +26,8 @@ class Settings(commands.Cog):
 
     @commands.Cog.listener()
     async def on_interaction(self, res: Interaction):
+        if res.guild is None:
+            return
         member = await res.guild.fetch_member(res.user.id)
         data = res.data.get("custom_id", None)
         if data is not None:
