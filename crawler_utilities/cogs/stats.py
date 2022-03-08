@@ -30,6 +30,13 @@ class CommandStats(commands.Cog):
         await user_activity(bot_name, command, author, client_id)
         await guild_activity(bot_name, command, guild, client_id)
         await command_activity(bot_name, command, client_id)
+        try:
+            log.info(
+                "cmd: chan {0.message.channel} ({0.message.channel.id}), serv {0.message.guild} ({0.message.guild.id}), "
+                "auth {0.message.author} ({0.message.author.id}): {0.message.content}".format(
+                    ctx))
+        except AttributeError:
+            log.info("Command in PM with {0.message.author} ({0.message.author.id}): {0.message.content}".format(ctx))
 
     @commands.Cog.listener()
     async def on_interaction(self, interaction):
@@ -47,6 +54,13 @@ class CommandStats(commands.Cog):
         await user_activity(bot_name, command, author, client_id)
         await guild_activity(bot_name, command, guild, client_id)
         await command_activity(bot_name, command, client_id)
+        try:
+            log.info(
+                "slash: chan {0.channel} ({0.channel_id}), serv {0.guild} ({0.guild_id}), "
+                "auth {0.user} ({0.user.id}): {1}".format(
+                    interaction, command))
+        except AttributeError:
+            log.info("Command in PM with {0.user} ({0.user.id}): {1}".format(interaction, command))
 
 
 async def user_activity(bot_name, command, author, client_id):
