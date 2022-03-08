@@ -88,7 +88,10 @@ def track_google_analytics_event(event_category, event_action, event_label, clie
         'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.76 Safari/537.36',
         'cache-control': "no-cache"
     }
-    requests.post(url, params=data, headers=headers)
+    try:
+        requests.post(url, params=data, headers=headers)
+    except Exception as e:
+        log.error(f"Tried logging, but failed: {e}")
 
 
 def track_google_analytics_event_values(event_category, event_action, event_value, client=None):
@@ -116,7 +119,11 @@ def track_google_analytics_event_values(event_category, event_action, event_valu
         'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.76 Safari/537.36',
         'cache-control': "no-cache"
     }
-    requests.post(url, params=data, headers=headers)
+    try:
+        requests.post(url, params=data, headers=headers)
+    except Exception as e:
+        log.error(f"Tried logging, but failed: {e}")
+
 
 
 def setup(bot):

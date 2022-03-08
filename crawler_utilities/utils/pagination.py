@@ -120,10 +120,13 @@ class EmbedPaginator(Dialog):
         current_page_index = 0
 
         def checkB(i: Interaction):
-            res = (i.message.id == self.message.id) and (i.data['custom_id'] in self.control_labels or i.data['custom_id'].split(" ")[1] in valid)
+            interactionId = i.message.id
+            messageId = self.message.id
+            userId = i.user.id
+            res = (interactionId == messageId) and (i.data['custom_id'] in self.control_labels or i.data['custom_id'].split(" ")[1] in valid)
 
             if len(users) > 0:
-                res = res and i.user.id in [u1.id for u1 in users]
+                res = res and userId in [u1.id for u1 in users]
 
             return res
 
