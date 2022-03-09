@@ -27,9 +27,9 @@ class CommandStats(commands.Cog):
             guild = ctx.guild.id
         client_id = str(datetime.now())
         command = ctx.command.qualified_name
-        await user_activity(bot_name, command, author, client_id)
-        await guild_activity(bot_name, command, guild, client_id)
-        await command_activity(bot_name, command, client_id)
+        await user_activity(bot_name, command, author, client_id, ctx.author.is_on_mobile())
+        await guild_activity(bot_name, command, guild, client_id, ctx.author.is_on_mobile())
+        await command_activity(bot_name, command, client_id, ctx.author.is_on_mobile())
         try:
             log.info(
                 "cmd: chan {0.message.channel} ({0.message.channel.id}), serv {0.message.guild} ({0.message.guild.id}), "
@@ -51,9 +51,9 @@ class CommandStats(commands.Cog):
             guild = interaction.guild_id
         command = interaction.data.get('name')
         client_id = str(datetime.now())
-        await user_activity(bot_name, command, author, client_id)
-        await guild_activity(bot_name, command, guild, client_id)
-        await command_activity(bot_name, command, client_id)
+        await user_activity(bot_name, command, author, client_id, interaction.user.is_on_mobile())
+        await guild_activity(bot_name, command, guild, client_id, interaction.user.is_on_mobile())
+        await command_activity(bot_name, command, client_id, interaction.user.is_on_mobile())
         try:
             log.info(
                 "slash: chan {0.channel} ({0.channel_id}), serv {0.guild} ({0.guild_id}), "
@@ -63,19 +63,19 @@ class CommandStats(commands.Cog):
             log.info("Command in PM with {0.user} ({0.user.id}): {1}".format(interaction, command))
 
 
-async def user_activity(bot_name, command, author, client_id):
-    track_google_analytics_event(f"{bot_name}: User", f"{command}", f"{author}", client_id)
+async def user_activity(bot_name, command, author, client_id, mobile):
+    track_google_analytics_event(f"{bot_name}: User", f"{command}", f"{author}", client_id, mobile)
 
 
-async def guild_activity(bot_name, command, guild, client_id):
-    track_google_analytics_event(f"{bot_name}: Guild", f"{command}", f"{guild}", client_id)
+async def guild_activity(bot_name, command, guild, client_id, mobile):
+    track_google_analytics_event(f"{bot_name}: Guild", f"{command}", f"{guild}", client_id, mobile)
 
 
-async def command_activity(bot_name, command, client_id):
-    track_google_analytics_event(bot_name, f"{command}", "", client_id)
+async def command_activity(bot_name, command, client_id, mobile):
+    track_google_analytics_event(bot_name, f"{command}", "", client_id, mobile)
 
 
-def track_google_analytics_event(event_category, event_action, event_label, client=None):
+def track_google_analytics_event(event_category, event_action, event_label, client=None, mobile=False):
     """
     Track an event to Google Analytics
     :param event_category: Event Category
@@ -98,10 +98,16 @@ def track_google_analytics_event(event_category, event_action, event_label, clie
         "el": event_label,
         "aip": "1"
     }
-    headers = {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.76 Safari/537.36',
-        'cache-control': "no-cache"
-    }
+    if mobile:
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (Linux; Android 8.0.0; SM-G960F Build/R16NW) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/62.0.3202.84 Mobile Safari/537.36',
+            'cache-control': "no-cache"
+        }
+    else:
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.135 Safari/537.36 Edge/12.246',
+            'cache-control': "no-cache"
+        }
     try:
         requests.post(url, params=data, headers=headers)
     except Exception as e:

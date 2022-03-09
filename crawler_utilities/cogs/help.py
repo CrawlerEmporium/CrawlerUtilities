@@ -42,6 +42,7 @@ class Help(commands.Cog):
 
     @slash_command(name="help")
     async def help(self, ctx, command: Option(str, "For which command do you want to see the help menu?", autocomplete=get_help)):
+        """Get more information about the commands this bot has"""
         identifier = ID.get(self.bot.user.name)
         await getCommandHelp(ctx, command, identifier)
 
