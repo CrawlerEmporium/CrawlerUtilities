@@ -40,7 +40,7 @@ class Help(commands.Cog):
         view.add_item(Button(label="Re-invite me", style=ButtonStyle.url, emoji=serverEmoji, url="https://discordapp.com/oauth2/authorize?client_id=559331529378103317&scope=bot%20applications.commands&permissions=295010692176"))
         await ctx.send(embed=embed, view=view, delete_after=120)
 
-    @slash_command(name="help", guild_ids=[584842413135101990])
+    @slash_command(name="help")
     async def help(self, ctx, command: Option(str, "For which command do you want to see the help menu?", autocomplete=get_help)):
         identifier = ID.get(self.bot.user.name)
         await getCommandHelp(ctx, command, identifier)
