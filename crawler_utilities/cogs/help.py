@@ -25,6 +25,7 @@ class Help(commands.Cog):
 
     @commands.command(name="help")
     async def helpCommand(self, ctx):
+        identifier = ID.get(self.bot.user.name)
         embed = ErrorEmbedWithAuthorWithoutContext(ctx.author)
         embed.title = "This help command was moved to a slash command."
         embed.description = f"Try the new slash commands through ``/help``\n" \
@@ -37,7 +38,12 @@ class Help(commands.Cog):
         serverEmoji = self.bot.get_emoji(int("<:5e:603932658820448267>".split(":")[2].replace(">", "")))
         view = View()
         view.add_item(Button(label="Support server", style=ButtonStyle.url, emoji=serverEmoji, url="https://discord.gg/HEY6BWj"))
-        view.add_item(Button(label="Re-invite me", style=ButtonStyle.url, emoji=serverEmoji, url="https://discordapp.com/oauth2/authorize?client_id=559331529378103317&scope=bot%20applications.commands&permissions=295010692176"))
+        if identifier == "discord":
+            view.add_item(Button(label="Re-invite me", style=ButtonStyle.url, emoji=serverEmoji, url="https://discordapp.com/oauth2/authorize?client_id=602774912595263490&scope=bot%20applications.commands&permissions=295010692176"))
+        elif identifier == "issue":
+            view.add_item(Button(label="Re-invite me", style=ButtonStyle.url, emoji=serverEmoji, url="https://discordapp.com/oauth2/authorize?client_id=602779023151595546&scope=bot%20applications.commands&permissions=295010692176"))
+        elif identifier == "5e":
+            view.add_item(Button(label="Re-invite me", style=ButtonStyle.url, emoji=serverEmoji, url="https://discordapp.com/oauth2/authorize?client_id=559331529378103317&scope=bot%20applications.commands&permissions=295010692176"))
         await ctx.send(embed=embed, view=view, delete_after=120)
 
     @slash_command(name="help")
