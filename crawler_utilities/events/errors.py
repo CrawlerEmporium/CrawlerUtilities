@@ -200,7 +200,6 @@ class Errors(commands.Cog):
 
     @commands.Cog.listener()
     async def on_application_command_error(self, ctx, error):
-        print(type(error))
         errorChannel = await self.bot.fetch_channel(self.bot.error)
         if isinstance(error, CrawlerException):
             return await sendEmbedSlashError(ctx, str(error))
