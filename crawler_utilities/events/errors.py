@@ -280,7 +280,7 @@ class Errors(commands.Cog):
         await splitDiscordEmbedField(embed, tb, "Traceback")
 
         await errorChannel.send(embed=embed)
-        log.error("Error caused by message: `{}`".format(ctx.interaction.message.content))
+        log.error("Error caused by message: `{}`".format(ctx.command.qualified_name))
 
     def gen_error_message(self):
         subject = random.choice(adj)
