@@ -6,7 +6,7 @@ from aiohttp import ClientResponseError, ClientOSError
 from d20 import TooManyRolls, RollSyntaxError, RollValueError
 
 from crawler_utilities.utils.embeds import ErrorEmbedWithAuthorWithoutContext
-from discord import Forbidden, HTTPException, InvalidArgument, NotFound
+from discord import Forbidden, HTTPException, InvalidArgument, NotFound, ApplicationCommandInvokeError
 from discord.ext import commands
 from discord.ext.commands import CommandInvokeError, ExpectedClosingQuoteError, UnexpectedQuoteError, CheckFailure
 from crawler_utilities.handlers.errors import CrawlerException, InvalidArgument, EvaluationError, NoSelectionElements
@@ -78,7 +78,7 @@ async def sendEmbedSlashError(ctx, description, title=None):
     if title is not None:
         embed.title = title
     else:
-        embed.title = f"Error in command - {ctx.interaction.message.content}"
+        embed.title = f"Error in command - {ctx.command.qualified_name}"
     embed.description = description
     await ctx.respond(embed=embed, ephemeral=True)
 
@@ -86,6 +86,13 @@ async def sendEmbedSlashError(ctx, description, title=None):
 async def sendAuthorEmbedError(ctx, description):
     embed = ErrorEmbedWithAuthorWithoutContext(ctx.message.author)
     embed.title = f"Error in command - {ctx.message.content}"
+    embed.description = description
+    await ctx.author.send(embed=embed)
+
+
+async def sendAuthorEmbedSlashError(ctx, description):
+    embed = ErrorEmbedWithAuthorWithoutContext(ctx.interaction.user)
+    embed.title = f"Error in command - {ctx.command.qualified_name}"
     embed.description = description
     await ctx.author.send(embed=embed)
 
@@ -103,6 +110,7 @@ class Errors(commands.Cog):
         log.debug('\n'.join(traceback.format_exception(type(error), error, error.__traceback__)))
         if isinstance(error, CrawlerException):
             return await sendEmbedError(ctx, str(error))
+
         tb = ''.join(traceback.format_exception(type(error), error, error.__traceback__))
         if isinstance(error, (commands.MissingRequiredArgument, commands.BadArgument, commands.NoPrivateMessage, ValueError)):
             return await sendEmbedError(ctx, "" + str(error) + f"\nUse `{ctx.prefix}help " + ctx.command.qualified_name + "` for help.")
@@ -192,6 +200,7 @@ class Errors(commands.Cog):
 
     @commands.Cog.listener()
     async def on_application_command_error(self, ctx, error):
+        print(type(error))
         errorChannel = await self.bot.fetch_channel(self.bot.error)
         if isinstance(error, CrawlerException):
             return await sendEmbedSlashError(ctx, str(error))
@@ -209,7 +218,7 @@ class Errors(commands.Cog):
                                              f"Please check the ``/help`` command for proper usage of my commands.")
         elif isinstance(error, ExpectedClosingQuoteError):
             return await sendEmbedSlashError(ctx, f"You gave me a command that requires quotes, and you forgot one at the end.")
-        elif isinstance(error, CommandInvokeError):
+        elif isinstance(error, ApplicationCommandInvokeError):
             original = error.original
             if isinstance(original, EvaluationError):  # PM an alias interaction.author tiny traceback
                 e = original.original
@@ -217,7 +226,7 @@ class Errors(commands.Cog):
                     tb = f"```py\nwhen parsing expression {original.expression}:\n" \
                          f"{''.join(traceback.format_exception(type(e), e, e.__traceback__, limit=0, chain=False))}\n```"
                     try:
-                        await sendAuthorEmbedError(ctx, tb)
+                        await sendAuthorEmbedSlashError(ctx, tb)
                     except Exception as e:
                         log.info(f"Error sending traceback: {e}")
             if isinstance(original, CrawlerException):
@@ -230,10 +239,10 @@ class Errors(commands.Cog):
                 return await sendEmbedSlashError(ctx, f"You tried to roll a d0, with did you expect to happen?")
             if isinstance(original, Forbidden):
                 try:
-                    return await sendAuthorEmbedError(ctx,
-                                                      f"I am missing permissions to run this command. "
-                                                      f"Please make sure I have permission to send messages to <#{ctx.interaction.channel.id}>."
-                                                      )
+                    return await sendAuthorEmbedSlashError(ctx,
+                                                           f"I am missing permissions to run this command. "
+                                                           f"Please make sure I have permission to send messages to <#{ctx.interaction.channel.id}>."
+                                                           )
                 except:
                     try:
                         return await sendEmbedSlashError(ctx, f"Error: I cannot send messages to this user.")
