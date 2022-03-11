@@ -2,7 +2,6 @@ from datetime import datetime
 
 import requests
 import time
-from discord import InteractionType
 
 from discord.ext import commands
 
@@ -39,17 +38,14 @@ class CommandStats(commands.Cog):
             log.info("Command in PM with {0.message.author} ({0.message.author.id}): {0.message.content}".format(ctx))
 
     @commands.Cog.listener()
-    async def on_interaction(self, interaction):
-        if interaction.type != InteractionType.application_command:
-            return
-
+    async def on_application_command(self, ctx):
         bot_name = self.bot.user.name
-        author = interaction.user.id
-        if interaction.guild_id is None:
+        author = ctx.interaction.user.id
+        if ctx.interaction.guild_id is None:
             guild = 0
         else:
-            guild = interaction.guild_id
-        command = interaction.data.get('name')
+            guild = ctx.interaction.guild_id
+        command = ctx.command.qualified_name
         client_id = str(datetime.now())
         await user_activity(bot_name, command, author, client_id)
         await guild_activity(bot_name, command, guild, client_id)
@@ -58,9 +54,9 @@ class CommandStats(commands.Cog):
             log.info(
                 "slash: chan {0.channel} ({0.channel_id}), serv {0.guild} ({0.guild_id}), "
                 "auth {0.user} ({0.user.id}): {1}".format(
-                    interaction, command))
+                    ctx.interaction, command))
         except AttributeError:
-            log.info("Command in PM with {0.user} ({0.user.id}): {1}".format(interaction, command))
+            log.info("Command in PM with {0.user} ({0.user.id}): {1}".format(ctx.interaction, command))
 
 
 async def user_activity(bot_name, command, author, client_id):
