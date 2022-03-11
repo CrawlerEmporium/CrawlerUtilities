@@ -233,7 +233,7 @@ class Errors(commands.Cog):
             if isinstance(original, TooManyRolls):
                 return await sendEmbedSlashError(ctx, "Too many dice rolled. Maximum is a 1000 at once.")
             if isinstance(original, RollSyntaxError):
-                return await sendEmbedSlashError(ctx, f"Your dice syntax is off, please check ``/help roll`` for the correct usage of this command.\nYou used the following syntax: ``{ctx.interaction.message.content}``")
+                return await sendEmbedSlashError(ctx, f"Your dice syntax is off, please check ``/help roll`` for the correct usage of this command.")
             if isinstance(original, RollValueError):
                 return await sendEmbedSlashError(ctx, f"You tried to roll a d0, with did you expect to happen?")
             if isinstance(original, Forbidden):
