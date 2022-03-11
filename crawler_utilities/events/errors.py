@@ -74,11 +74,11 @@ async def sendEmbedError(ctx, description, title=None):
 
 
 async def sendEmbedSlashError(ctx, description, title=None):
-    embed = ErrorEmbedWithAuthorWithoutContext(ctx.message.author)
+    embed = ErrorEmbedWithAuthorWithoutContext(ctx.interaction.user)
     if title is not None:
         embed.title = title
     else:
-        embed.title = f"Error in command - {ctx.message.content}"
+        embed.title = f"Error in command - {ctx.interaction.message.content}"
     embed.description = description
     await ctx.respond(embed=embed, ephemeral=True)
 
