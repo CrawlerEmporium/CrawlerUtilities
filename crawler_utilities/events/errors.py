@@ -270,7 +270,7 @@ class Errors(commands.Cog):
                                   f"Uh oh, that wasn't supposed to happen! "
                                   f"Please join the Support Discord (``/support``) and file a bug report, with the title included in the report.", error_msg)
 
-        embed = ErrorEmbedWithAuthorWithoutContext(ctx.message.interaction.user)
+        embed = ErrorEmbedWithAuthorWithoutContext(ctx.interaction.user)
         embed.title = f"Error: {error_msg}"
         try:
             embed.description = f"Channel: **{ctx.interaction.channel}** ({ctx.channel.id})\nServer: **{ctx.interaction.guild}** ({ctx.interaction.guild.id})\nUser: **{ctx.interaction.user.mention}** ({ctx.interaction.user.id})\n\n{repr(error)}"
