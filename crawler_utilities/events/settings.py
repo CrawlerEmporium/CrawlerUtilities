@@ -56,7 +56,8 @@ class Settings(commands.Cog):
                         buttons = getIssueSettingsButtons(guild_settings)
                     await res.message.edit(embed=embed, view=buttons)
                     buttons.stop()
-                    await res.response.defer()
+                    if not res.response.is_done():
+                        await res.response.defer()
                 else:
                     await res.response.send_message(content="You need 'Administrator' permissions to change settings on this server.")
 
