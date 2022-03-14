@@ -7,6 +7,7 @@ from discord.ext import commands
 
 from crawler_utilities.handlers import logger
 from crawler_utilities.utils.globals import GOOGLEANALYTICSID
+from faker import Faker
 
 log = logger.logger
 
@@ -15,6 +16,7 @@ class CommandStats(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.start_time = time.monotonic()
+        self.faker = Faker()
 
     @commands.Cog.listener()
     async def on_command(self, ctx):
@@ -24,7 +26,8 @@ class CommandStats(commands.Cog):
             guild = 0
         else:
             guild = ctx.guild.id
-        client_id = str(datetime.now())
+        self.faker.seed_instance(author)
+        client_id = self.faker.uuid4()
         command = ctx.command.qualified_name
         await user_activity(bot_name, command, author, client_id)
         await guild_activity(bot_name, command, guild, client_id)
@@ -45,8 +48,9 @@ class CommandStats(commands.Cog):
             guild = 0
         else:
             guild = ctx.interaction.guild_id
+        self.faker.seed_instance(author)
+        client_id = self.faker.uuid4()
         command = ctx.command.qualified_name
-        client_id = str(datetime.now())
         await user_activity(bot_name, command, author, client_id)
         await guild_activity(bot_name, command, guild, client_id)
         await command_activity(bot_name, command, client_id)
@@ -80,7 +84,8 @@ def track_google_analytics_event(event_category, event_action, event_label, clie
     :param client: Specific Client Id for the Events
     """
     if client is None:
-        client = str(datetime.now())
+        faker = Faker()
+        client = faker.uuid4()
     if isinstance(event_label, str):
         event_label = event_label.lower()
     url = "https://www.google-analytics.com/collect"

@@ -219,7 +219,7 @@ class Errors(commands.Cog):
             return await sendEmbedSlashError(ctx, f"You gave me a command that requires quotes, and you forgot one at the end.")
         elif isinstance(error, ApplicationCommandInvokeError):
             original = error.original
-            if isinstance(original, EvaluationError):  # PM an alias interaction.author tiny traceback
+            if isinstance(original, EvaluationError):  # PM an alias interaction.user tiny traceback
                 e = original.original
                 if not isinstance(e, CrawlerException):
                     tb = f"```py\nwhen parsing expression {original.expression}:\n" \
