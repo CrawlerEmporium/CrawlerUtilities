@@ -6,6 +6,7 @@ import time
 from discord.ext import commands
 
 from crawler_utilities.handlers import logger
+from crawler_utilities.utils.functions import get_uuid4_from_user_id
 from crawler_utilities.utils.globals import GOOGLEANALYTICSID
 from faker import Faker
 
@@ -16,7 +17,6 @@ class CommandStats(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.start_time = time.monotonic()
-        self.faker = Faker()
 
     @commands.Cog.listener()
     async def on_command(self, ctx):
@@ -26,8 +26,7 @@ class CommandStats(commands.Cog):
             guild = 0
         else:
             guild = ctx.guild.id
-        self.faker.seed_instance(author)
-        client_id = self.faker.uuid4()
+        client_id = get_uuid4_from_user_id(author)
         command = ctx.command.qualified_name
         await user_activity(bot_name, command, author, client_id)
         await guild_activity(bot_name, command, guild, client_id)
@@ -48,8 +47,7 @@ class CommandStats(commands.Cog):
             guild = 0
         else:
             guild = ctx.interaction.guild_id
-        self.faker.seed_instance(author)
-        client_id = self.faker.uuid4()
+        client_id = get_uuid4_from_user_id(author)
         command = ctx.command.qualified_name
         await user_activity(bot_name, command, author, client_id)
         await guild_activity(bot_name, command, guild, client_id)

@@ -106,8 +106,8 @@ class Errors(commands.Cog):
         errorChannel = await self.bot.fetch_channel(self.bot.error)
         if isinstance(error, commands.CommandNotFound):
             return
-        log.debug("Error caused by message: `{}`".format(ctx.message.content))
-        log.debug('\n'.join(traceback.format_exception(type(error), error, error.__traceback__)))
+        log.error("Error caused by message: `{}`".format(ctx.message.content))
+        log.error('\n'.join(traceback.format_exception(type(error), error, error.__traceback__)))
         if isinstance(error, CrawlerException):
             return await sendEmbedError(ctx, str(error))
 
@@ -201,6 +201,8 @@ class Errors(commands.Cog):
     @commands.Cog.listener()
     async def on_application_command_error(self, ctx, error):
         errorChannel = await self.bot.fetch_channel(self.bot.error)
+        log.error(f"Error caused by slash: {ctx.command.qualified_name}, auth: {ctx.interaction.user} ({ctx.interaction.user.id})")
+        log.error('\n'.join(traceback.format_exception(type(error), error, error.__traceback__)))
         if isinstance(error, CrawlerException):
             return await sendEmbedSlashError(ctx, str(error))
         tb = ''.join(traceback.format_exception(type(error), error, error.__traceback__))

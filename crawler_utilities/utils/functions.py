@@ -1,5 +1,6 @@
 import re
 import discord
+from faker import Faker
 
 
 async def try_delete(message):
@@ -7,6 +8,12 @@ async def try_delete(message):
         await message.delete()
     except discord.HTTPException:
         pass
+
+
+def get_uuid4_from_user_id(user_id):
+    faker = Faker()
+    faker.seed_instance(user_id)
+    return faker.uuid4()
 
 
 def make_ordinal(n):
