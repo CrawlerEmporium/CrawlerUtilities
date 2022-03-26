@@ -8,3 +8,6 @@ MONGODB = env('MONGODB')
 GOOGLEANALYTICSID = env('GOOGLEANALYTICSID')
 
 HELPDB = motor.motor_asyncio.AsyncIOMotorClient(MONGODB)['lookup'].help
+
+LOCALEFOLDER = env('LOCALEFOLDER')
+LOCALIZATION = {}
