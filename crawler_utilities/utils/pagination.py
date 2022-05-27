@@ -116,7 +116,10 @@ class EmbedPaginator(Dialog):
                 view = discord.ui.View()
                 view = self.getPaginationButtons(view, 0, True, True, False, False)
 
-        self.message = await channel.send(embed=self.formatted_pages[0], view=view)
+        if self.message is None:
+            self.message = await channel.send(embed=self.formatted_pages[0], view=view)
+        else:
+            await self.message.edit(content="", embed=self.formatted_pages[0], view=view)
         current_page_index = 0
 
         def checkB(i: Interaction):
@@ -130,16 +133,9 @@ class EmbedPaginator(Dialog):
 
             return res
 
-        def checkM(msg: discord.Message):
-            if len(users) > 0:
-                res = msg.author.id in [u1.id for u1 in users] and msg.content.lower() in valid
-
-            return res
-
         click = self._client.wait_for('interaction', check=checkB, timeout=60)
-        msg = self._client.wait_for('message', check=checkM, timeout=60)
 
-        tasks = [click, msg]
+        tasks = [click]
         while tasks:
             try:
                 done, pending = await asyncio.wait(tasks, return_when=asyncio.FIRST_COMPLETED)
@@ -220,8 +216,7 @@ class EmbedPaginator(Dialog):
                                     await self.message.delete()
                                     return id.split(" ")[1]
 
-                            await result.response.pong()
-                            await result.edit_original_message(embed=self.formatted_pages[load_page_index], view=view)
+                            await result.response.edit_message(embed=self.formatted_pages[load_page_index], view=view)
 
                             current_page_index = load_page_index
 
@@ -229,18 +224,8 @@ class EmbedPaginator(Dialog):
                                 future.cancel()
 
                             click = self._client.wait_for('interaction', check=checkB, timeout=60)
-                            msg = self._client.wait_for('message', check=checkM, timeout=60)
 
-                            tasks = [msg, click]
-                        elif isinstance(result, discord.message.Message):
-                            await self.message.delete()
-                            try:
-                                await result.delete()
-                            except:
-                                pass
-                            for future in pending:
-                                future.cancel()
-                            return result.content
+                            tasks = [click]
             except asyncio.TimeoutError:
                 await self.message.delete()
                 return

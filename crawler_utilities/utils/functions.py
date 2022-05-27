@@ -17,14 +17,14 @@ def get_uuid4_from_user_id(user_id):
 
 
 def make_ordinal(n):
-    '''
+    """
     Convert an integer into its ordinal representation::
 
         make_ordinal(0)   => '0th'
         make_ordinal(3)   => '3rd'
         make_ordinal(122) => '122nd'
         make_ordinal(213) => '213th'
-    '''
+    """
     n = int(n)
     suffix = ['th', 'st', 'nd', 'rd', 'th'][min(n % 10, 4)]
     if 11 <= (n % 100) <= 13:
@@ -71,10 +71,9 @@ def get_positivity(string):
         return None
 
 
-
 async def splitDiscordEmbedField(embed, input, embed_field_name):
     texts = []
-    input = await whileSplit(input, texts, 1024)
+    input = await whileSplit(input, texts, 2040)
     texts.append(input)
     embed.add_field(name=embed_field_name, value=texts[0], inline=False)
     for piece in texts[1:]:
@@ -92,9 +91,9 @@ async def whileSplit(input, texts, amount):
 
 
 async def safeEmbed(embed_queue, title, desc, color):
-    if len(desc) < 1024:
+    if len(desc) < 2040:
         embed_queue[-1].add_field(name=title, value=desc, inline=False)
-    elif len(desc) < 4096:
+    elif len(desc) < 4090:
         embed = discord.Embed(colour=color, title=title)
         await splitDiscordEmbedField(embed, desc, title)
         embed_queue.append(embed)
