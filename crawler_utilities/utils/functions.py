@@ -73,7 +73,7 @@ def get_positivity(string):
 
 async def splitDiscordEmbedField(embed, input, embed_field_name):
     texts = []
-    input = await whileSplit(input, texts, 2040)
+    input = await whileSplit(input, texts, 1024)
     texts.append(input)
     embed.add_field(name=embed_field_name, value=texts[0], inline=False)
     for piece in texts[1:]:
@@ -91,16 +91,16 @@ async def whileSplit(input, texts, amount):
 
 
 async def safeEmbed(embed_queue, title, desc, color):
-    if len(desc) < 2040:
+    if len(desc) < 1024:
         embed_queue[-1].add_field(name=title, value=desc, inline=False)
-    elif len(desc) < 4090:
+    elif len(desc) < 4096:
         embed = discord.Embed(colour=color, title=title)
         await splitDiscordEmbedField(embed, desc, title)
         embed_queue.append(embed)
     else:
         embed_queue.append(discord.Embed(colour=color, title=title))
         texts = []
-        desc = await whileSplit(desc, texts, 2040)
+        desc = await whileSplit(desc, texts, 1024)
         texts.append(desc)
         embed_queue[-1].description = texts[0]
         for t in texts[1:]:
