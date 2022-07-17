@@ -3,9 +3,9 @@ import asyncio
 import discord
 from discord import Colour
 from discord.ext import commands
-from crawler_utilities.handlers import logger
+import crawler_utilities.utils.globals as GG
 
-log = logger.logger
+log = GG.log
 
 
 class JoinLeave(commands.Cog):

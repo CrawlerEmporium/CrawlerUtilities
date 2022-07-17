@@ -3,9 +3,7 @@ import crawler_utilities.utils.globals as GG
 from os import listdir
 from os.path import join, isfile
 from discord.ext import commands
-from crawler_utilities.handlers import logger
-
-log = logger.logger
+log = GG.log
 
 
 class Localization(commands.Cog):

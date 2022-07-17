@@ -4,13 +4,13 @@ import discord
 from discord.ext import commands, tasks
 
 from crawler_utilities.utils.embeds import ErrorEmbedWithAuthorWithoutContext
-from crawler_utilities.handlers import logger
+import crawler_utilities.utils.globals as GG
 from discord.ui import Button, View
 from discord import ButtonStyle, Option, slash_command
 
 from crawler_utilities.utils.globals import HELPDB
 
-log = logger.logger
+log = GG.log
 
 ID = {"CommunityCrawler": "discord", "5eCrawler": "5e", "5eCrawler.Nightly": "5e", "IssueCrawler": "issue"}
 

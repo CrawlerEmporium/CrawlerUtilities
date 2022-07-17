@@ -5,12 +5,12 @@ import time
 
 from discord.ext import commands
 
-from crawler_utilities.handlers import logger
+import crawler_utilities.utils.globals as GG
 from crawler_utilities.utils.functions import get_uuid4_from_user_id
 from crawler_utilities.utils.globals import GOOGLEANALYTICSID
 from faker import Faker
 
-log = logger.logger
+log = GG.log
 
 
 class CommandStats(commands.Cog):

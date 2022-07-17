@@ -10,10 +10,10 @@ from discord import Forbidden, HTTPException, InvalidArgument, NotFound, Applica
 from discord.ext import commands
 from discord.ext.commands import CommandInvokeError, ExpectedClosingQuoteError, UnexpectedQuoteError, CheckFailure
 from crawler_utilities.handlers.errors import CrawlerException, InvalidArgument, EvaluationError, NoSelectionElements
-from crawler_utilities.handlers import logger
+import crawler_utilities.utils.globals as GG
 from crawler_utilities.utils.functions import splitDiscordEmbedField
 
-log = logger.logger
+log = GG.log
 
 adj = ['Lonely', 'Unceasing', 'Overused', 'Blue', 'Orange', 'Tiny', 'Giant', 'Deadly', 'Hopeless', 'Unknown',
        'Defeated', 'Deafening', 'Tenacious', 'Evasive', 'Omniscient', 'Wild', 'Toxic', 'Spotless', 'Impossible',

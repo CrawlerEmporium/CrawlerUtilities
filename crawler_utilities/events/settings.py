@@ -4,10 +4,10 @@ from discord.ui import Button
 
 from crawler_utilities.utils.embeds import EmbedWithAuthorWithoutContext
 from discord.ext import commands
-from crawler_utilities.handlers import logger
+import crawler_utilities.utils.globals as GG
 from crawler_utilities.utils.functions import get_positivity
 
-log = logger.logger
+log = GG.log
 
 active = "(<:active:949311836090671124> Active)"
 inactive = "(<:inactive:949311835939688498> Inactive)"

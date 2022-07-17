@@ -1,6 +1,10 @@
 import motor.motor_asyncio
 from environs import Env
 
+from crawler_utilities.handlers.logger import Logger
+
+log = Logger("logs", "CrawlerUtilities", "CrawlerUtilities").logger
+
 env = Env()
 env.read_env()
 
