@@ -4,6 +4,7 @@ from environs import Env
 from crawler_utilities.handlers.logger import Logger
 
 log = Logger("logs", "CrawlerUtilities", "CrawlerUtilities").logger
+errors = Logger("logs", "ErrorCommands", "ErrorCommands").logger
 
 env = Env()
 env.read_env()

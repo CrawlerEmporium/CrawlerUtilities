@@ -14,6 +14,7 @@ import crawler_utilities.utils.globals as GG
 from crawler_utilities.utils.functions import splitDiscordEmbedField
 
 log = GG.log
+errors = GG.errors
 
 adj = ['Lonely', 'Unceasing', 'Overused', 'Blue', 'Orange', 'Tiny', 'Giant', 'Deadly', 'Hopeless', 'Unknown',
        'Defeated', 'Deafening', 'Tenacious', 'Evasive', 'Omniscient', 'Wild', 'Toxic', 'Spotless', 'Impossible',
@@ -63,6 +64,11 @@ class SearchException(Exception):
     pass
 
 
+def logError(command, description):
+    errors.error(f"Error in command - {command}:\n---------------")
+    errors.error(f"{description}\n---------------")
+
+
 async def sendEmbedError(ctx, description, title=None):
     embed = ErrorEmbedWithAuthorWithoutContext(ctx.message.author)
     if title is not None:
@@ -70,6 +76,7 @@ async def sendEmbedError(ctx, description, title=None):
     else:
         embed.title = f"Error in command - {ctx.message.content}"
     embed.description = description
+    logError(ctx.message.content, description)
     await ctx.send(embed=embed)
 
 
@@ -80,6 +87,7 @@ async def sendEmbedSlashError(ctx, description, title=None):
     else:
         embed.title = f"Error in command - {ctx.command.qualified_name}"
     embed.description = description
+    logError(ctx.message.content, description)
     await ctx.respond(embed=embed, ephemeral=True)
 
 
@@ -112,19 +120,23 @@ class Errors(commands.Cog):
             return await sendEmbedError(ctx, str(error))
 
         tb = ''.join(traceback.format_exception(type(error), error, error.__traceback__))
-        if isinstance(error, (commands.MissingRequiredArgument, commands.BadArgument, commands.NoPrivateMessage, ValueError)):
-            return await sendEmbedError(ctx, "" + str(error) + f"\nUse `{ctx.prefix}help " + ctx.command.qualified_name + "` for help.")
+        if isinstance(error,
+                      (commands.MissingRequiredArgument, commands.BadArgument, commands.NoPrivateMessage, ValueError)):
+            return await sendEmbedError(ctx, "" + str(
+                error) + f"\nUse `{ctx.prefix}help " + ctx.command.qualified_name + "` for help.")
         elif isinstance(error, commands.CheckFailure):
             return await sendEmbedError(ctx, "You are not allowed to run this command.")
         elif isinstance(error, commands.CommandOnCooldown):
-            return await sendEmbedError(ctx, "This command is on cooldown for {:.1f} seconds.".format(error.retry_after))
+            return await sendEmbedError(ctx,
+                                        "This command is on cooldown for {:.1f} seconds.".format(error.retry_after))
         elif isinstance(error, UnexpectedQuoteError):
             return await sendEmbedError(ctx,
                                         f"You either gave me a command that requires quotes, and you forgot one.\n"
                                         f"Or you have used the characters that are used to define what's optional and required (<> and [])\n"
                                         f"Please check the ``{ctx.prefix}help`` command for proper usage of my commands.")
         elif isinstance(error, ExpectedClosingQuoteError):
-            return await sendEmbedError(ctx, f"You gave me a command that requires quotes, and you forgot one at the end.")
+            return await sendEmbedError(ctx,
+                                        f"You gave me a command that requires quotes, and you forgot one at the end.")
         elif isinstance(error, CommandInvokeError):
             original = error.original
             if isinstance(original, EvaluationError):  # PM an alias author tiny traceback
@@ -141,7 +153,8 @@ class Errors(commands.Cog):
             if isinstance(original, TooManyRolls):
                 return await sendEmbedError(ctx, "Too many dice rolled. Maximum is a 1000 at once.")
             if isinstance(original, RollSyntaxError):
-                return await sendEmbedError(ctx, f"Your dice syntax is off, please check ``{ctx.prefix}help roll`` for the correct usage of this command.\nYou used the following syntax: ``{ctx.message.content}``")
+                return await sendEmbedError(ctx,
+                                            f"Your dice syntax is off, please check ``{ctx.prefix}help roll`` for the correct usage of this command.\nYou used the following syntax: ``{ctx.message.content}``")
             if isinstance(original, RollValueError):
                 return await sendEmbedError(ctx, f"You tried to roll a d0, with did you expect to happen?")
             if isinstance(original, Forbidden):
@@ -169,22 +182,26 @@ class Errors(commands.Cog):
                 if original.response.status == 500:
                     return await sendEmbedError(ctx, "Internal server error on Discord's end. Please try again.")
                 if original.response.status == 503:
-                    return await sendEmbedError(ctx, "Connecting failure on Discord's end. (Service unavailable). Please check https://status.discordapp.com for the status of the Discord Service, and try again later.")
+                    return await sendEmbedError(ctx,
+                                                "Connecting failure on Discord's end. (Service unavailable). Please check https://status.discordapp.com for the status of the Discord Service, and try again later.")
             if isinstance(original, OverflowError):
                 return await sendEmbedError(ctx, f"A number is too large for me to store.")
             if isinstance(original, SearchException):
                 return await sendEmbedError(ctx, f"Search Timed out, please try the command again.")
             if isinstance(original, KeyError):
                 if str(original) == "'content-type'":
-                    return await sendEmbedError(ctx, f"The command errored on Discord's side. I can't do anything about this, Sorry.\nPlease check https://status.discordapp.com for the status on the Discord API, and try again later.")
+                    return await sendEmbedError(ctx,
+                                                f"The command errored on Discord's side. I can't do anything about this, Sorry.\nPlease check https://status.discordapp.com for the status on the Discord API, and try again later.")
             if isinstance(original, CheckFailure):
-                return await ctx.respond("You do not have the required permissions to use this command.", ephemeral=True)
+                return await ctx.respond("You do not have the required permissions to use this command.",
+                                         ephemeral=True)
 
         error_msg = self.gen_error_message()
 
         await sendEmbedError(ctx,
                              f"Uh oh, that wasn't supposed to happen! "
-                             f"Please join the Support Discord (``{ctx.prefix}support``) and file a bug report, with the title included in the report.", error_msg)
+                             f"Please join the Support Discord (``{ctx.prefix}support``) and file a bug report, with the title included in the report.",
+                             error_msg)
 
         embed = ErrorEmbedWithAuthorWithoutContext(ctx.message.author)
         embed.title = f"Error: {error_msg}"
@@ -201,24 +218,29 @@ class Errors(commands.Cog):
     @commands.Cog.listener()
     async def on_application_command_error(self, ctx, error):
         errorChannel = await self.bot.fetch_channel(self.bot.error)
-        log.error(f"Error caused by slash: {ctx.command.qualified_name}, auth: {ctx.interaction.user} ({ctx.interaction.user.id})")
+        log.error(
+            f"Error caused by slash: {ctx.command.qualified_name}, auth: {ctx.interaction.user} ({ctx.interaction.user.id})")
         log.error('\n'.join(traceback.format_exception(type(error), error, error.__traceback__)))
         if isinstance(error, CrawlerException):
             return await sendEmbedSlashError(ctx, str(error))
         tb = ''.join(traceback.format_exception(type(error), error, error.__traceback__))
-        if isinstance(error, (commands.MissingRequiredArgument, commands.BadArgument, commands.NoPrivateMessage, ValueError)):
-            return await sendEmbedSlashError(ctx, "" + str(error) + f"\nUse `/help " + ctx.command.qualified_name + "` for help.")
+        if isinstance(error,
+                      (commands.MissingRequiredArgument, commands.BadArgument, commands.NoPrivateMessage, ValueError)):
+            return await sendEmbedSlashError(ctx, "" + str(
+                error) + f"\nUse `/help " + ctx.command.qualified_name + "` for help.")
         elif isinstance(error, commands.CheckFailure):
             return await sendEmbedSlashError(ctx, "You are not allowed to run this command.")
         elif isinstance(error, commands.CommandOnCooldown):
-            return await sendEmbedSlashError(ctx, "This command is on cooldown for {:.1f} seconds.".format(error.retry_after))
+            return await sendEmbedSlashError(ctx, "This command is on cooldown for {:.1f} seconds.".format(
+                error.retry_after))
         elif isinstance(error, UnexpectedQuoteError):
             return await sendEmbedSlashError(ctx,
                                              f"You either gave me a command that requires quotes, and you forgot one.\n"
                                              f"Or you have used the characters that are used to define what's optional and required (<> and [])\n"
                                              f"Please check the ``/help`` command for proper usage of my commands.")
         elif isinstance(error, ExpectedClosingQuoteError):
-            return await sendEmbedSlashError(ctx, f"You gave me a command that requires quotes, and you forgot one at the end.")
+            return await sendEmbedSlashError(ctx,
+                                             f"You gave me a command that requires quotes, and you forgot one at the end.")
         elif isinstance(error, ApplicationCommandInvokeError):
             original = error.original
             if isinstance(original, EvaluationError):  # PM an alias interaction.user tiny traceback
@@ -235,7 +257,8 @@ class Errors(commands.Cog):
             if isinstance(original, TooManyRolls):
                 return await sendEmbedSlashError(ctx, "Too many dice rolled. Maximum is a 1000 at once.")
             if isinstance(original, RollSyntaxError):
-                return await sendEmbedSlashError(ctx, f"Your dice syntax is off, please check ``/help roll`` for the correct usage of this command.")
+                return await sendEmbedSlashError(ctx,
+                                                 f"Your dice syntax is off, please check ``/help roll`` for the correct usage of this command.")
             if isinstance(original, RollValueError):
                 return await sendEmbedSlashError(ctx, f"You tried to roll a d0, with did you expect to happen?")
             if isinstance(original, Forbidden):
@@ -263,22 +286,26 @@ class Errors(commands.Cog):
                 if original.response.status == 500:
                     return await sendEmbedSlashError(ctx, "Internal server error on Discord's end. Please try again.")
                 if original.response.status == 503:
-                    return await sendEmbedSlashError(ctx, "Connecting failure on Discord's end. (Service unavailable). Please check https://status.discordapp.com for the status of the Discord Service, and try again later.")
+                    return await sendEmbedSlashError(ctx,
+                                                     "Connecting failure on Discord's end. (Service unavailable). Please check https://status.discordapp.com for the status of the Discord Service, and try again later.")
             if isinstance(original, OverflowError):
                 return await sendEmbedSlashError(ctx, f"A number is too large for me to store.")
             if isinstance(original, SearchException):
                 return await sendEmbedSlashError(ctx, f"Search Timed out, please try the command again.")
             if isinstance(original, KeyError):
                 if str(original) == "'content-type'":
-                    return await sendEmbedSlashError(ctx, f"The command errored on Discord's side. I can't do anything about this, Sorry.\nPlease check https://status.discordapp.com for the status on the Discord API, and try again later.")
+                    return await sendEmbedSlashError(ctx,
+                                                     f"The command errored on Discord's side. I can't do anything about this, Sorry.\nPlease check https://status.discordapp.com for the status on the Discord API, and try again later.")
             if isinstance(original, CheckFailure):
-                return await ctx.respond("You do not have the required permissions to use this command.", ephemeral=True)
+                return await ctx.respond("You do not have the required permissions to use this command.",
+                                         ephemeral=True)
 
         error_msg = self.gen_error_message()
 
         await sendEmbedSlashError(ctx,
                                   f"Uh oh, that wasn't supposed to happen! "
-                                  f"Please join the Support Discord (``/support``) and file a bug report, with the title included in the report.", error_msg)
+                                  f"Please join the Support Discord (``/support``) and file a bug report, with the title included in the report.",
+                                  error_msg)
 
         embed = ErrorEmbedWithAuthorWithoutContext(ctx.interaction.user)
         embed.title = f"Error: {error_msg}"
