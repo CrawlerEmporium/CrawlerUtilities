@@ -31,29 +31,6 @@ class Help(commands.Cog):
         identifier = ID.get(self.bot.user.name)
         self.commands = await HELPDB.find({"bots": identifier, "disabled": None}).to_list(length=None)
 
-    @commands.command(name="help")
-    async def helpCommand(self, ctx):
-        identifier = ID.get(self.bot.user.name)
-        embed = ErrorEmbedWithAuthorWithoutContext(ctx.author)
-        embed.title = "This help command was moved to a slash command."
-        embed.description = f"Try the new slash commands through ``/help``\n" \
-                            "Join the 5eCrawler Support server by clicking the button below or contact LordDusk#0001 for more info.\n\n\n"
-        embed.add_field(name="Why?", value="The reason for this change can be found on the [Discord blogpost](https://support-dev.discord.com/hc/en-us/articles/4404772028055-Message-Content-Privileged-Intent-for-Verified-Bots)", inline=False)
-        embed.add_field(name="TL;DR", value="Discord is stopping bots from using prefixed commands (like !help), and forcing bot developers to start using slash commands.\n" \
-                                            "This change will take effect from April onwards. And to get people used to this change, I decided I would deprecate the most used commands already.\n" \
-                                            "Note that this is not something for just 5eCrawler, but for most of the bots on discord.", inline=False)
-        embed.add_field(name="For Server owners", value="Some servers may not have slash commands enabled for the bot yet, you can reinvite the bot with the reinvite button below", inline=False)
-        serverEmoji = self.bot.get_emoji(int("<:5e:603932658820448267>".split(":")[2].replace(">", "")))
-        view = View()
-        view.add_item(Button(label="Support server", style=ButtonStyle.url, emoji=serverEmoji, url="https://discord.gg/HEY6BWj"))
-        if identifier == "discord":
-            view.add_item(Button(label="Re-invite me", style=ButtonStyle.url, emoji=serverEmoji, url="https://discordapp.com/oauth2/authorize?client_id=602774912595263490&scope=bot%20applications.commands&permissions=295010692176"))
-        elif identifier == "issue":
-            view.add_item(Button(label="Re-invite me", style=ButtonStyle.url, emoji=serverEmoji, url="https://discordapp.com/oauth2/authorize?client_id=602779023151595546&scope=bot%20applications.commands&permissions=295010692176"))
-        elif identifier == "5e":
-            view.add_item(Button(label="Re-invite me", style=ButtonStyle.url, emoji=serverEmoji, url="https://discordapp.com/oauth2/authorize?client_id=559331529378103317&scope=bot%20applications.commands&permissions=295010692176"))
-        await ctx.send(embed=embed, view=view, delete_after=120)
-
     @slash_command(name="help")
     async def help(self, ctx, command: Option(str, "For which command do you want to see the help menu?", autocomplete=get_help)):
         """Get more information about the commands this bot has"""
