@@ -40,6 +40,7 @@ class Help(commands.Cog):
     @commands.has_permissions(administrator=True)
     async def commands(self, ctx):
         """Gets the list of all commands with the integration ID attached."""
+        await ctx.defer()
         sB = "```\n"
         for command in self.bot.walk_application_commands():
             sB += f"{command.qualified_name}:{command.id}\n"
