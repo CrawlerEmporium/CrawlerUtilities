@@ -36,6 +36,16 @@ class Help(commands.Cog):
         """Get more information about the commands this bot has"""
         await self.getCommandHelp(ctx, command)
 
+    @slash_command(name="commands")
+    @commands.has_permissions(administrator=True)
+    async def commands(self, ctx):
+        """Gets the list of all commands with the integration ID attached."""
+        sB = "```\n"
+        for command in self.bot.walk_application_commands():
+            sB += f"{command.qualified_name}:{command.id}\n"
+        sB += "```"
+        await ctx.respond(sB)
+
     async def getCommandHelp(self, ctx, commandName):
         helpCommand = next(command for command in self.commands if command['command'] == commandName)
         prefix = '/'
