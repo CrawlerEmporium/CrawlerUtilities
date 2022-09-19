@@ -8,10 +8,11 @@ class EmbedWithAuthor(discord.Embed):
 
     def __init__(self, ctx, **kwargs):
         super(EmbedWithAuthor, self).__init__(**kwargs)
+        name = ctx.author.nick if not None else ctx.author.display_name
         if ctx.author.display_avatar.url is not None:
-            self.set_author(name=ctx.author.display_name, icon_url=ctx.author.display_avatar.url)
+            self.set_author(name=name, icon_url=ctx.author.display_avatar.url)
         else:
-            self.set_author(name=ctx.author.display_name)
+            self.set_author(name=name)
         self.colour = random.randint(0, 0xffffff)
 
 
@@ -20,10 +21,11 @@ class EmbedWithAuthorWithoutContext(discord.Embed):
 
     def __init__(self, author, **kwargs):
         super(EmbedWithAuthorWithoutContext, self).__init__(**kwargs)
+        name = author.nick if not None else author.display_name
         if author.display_avatar.url is not None:
-            self.set_author(name=author.display_name, icon_url=author.display_avatar.url)
+            self.set_author(name=name, icon_url=author.display_avatar.url)
         else:
-            self.set_author(name=author.display_name)
+            self.set_author(name=name)
         self.colour = random.randint(0, 0xffffff)
 
 class ErrorEmbedWithAuthorWithoutContext(discord.Embed):
