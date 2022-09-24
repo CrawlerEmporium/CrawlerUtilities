@@ -76,7 +76,10 @@ async def sendEmbedError(ctx, description, title=None):
     else:
         embed.title = f"Error in command - {ctx.message.content}"
     embed.description = description
-    logError(ctx.message.content, description)
+    if ctx.message is not None:
+        logError(ctx.message.content, description)
+    else:
+        logError(ctx.command.qualified_name, description)
     await ctx.send(embed=embed)
 
 
@@ -87,7 +90,10 @@ async def sendEmbedSlashError(ctx, description, title=None):
     else:
         embed.title = f"Error in command - {ctx.command.qualified_name}"
     embed.description = description
-    logError(ctx.message.content, description)
+    if ctx.message is not None:
+        logError(ctx.message.content, description)
+    else:
+        logError(ctx.command.qualified_name, description)
     await ctx.respond(embed=embed, ephemeral=True)
 
 
