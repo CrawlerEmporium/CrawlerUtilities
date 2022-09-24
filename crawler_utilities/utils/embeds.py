@@ -8,7 +8,10 @@ class EmbedWithAuthor(discord.Embed):
 
     def __init__(self, ctx, **kwargs):
         super(EmbedWithAuthor, self).__init__(**kwargs)
-        name = ctx.author.nick if not None else ctx.author.display_name
+        if isinstance(ctx.author, discord.User):
+            name = ctx.author.display_name
+        else:
+            name = ctx.author.nick if not None else ctx.author.display_name
         if ctx.author.display_avatar.url is not None:
             self.set_author(name=name, icon_url=ctx.author.display_avatar.url)
         else:
@@ -21,7 +24,10 @@ class EmbedWithAuthorWithoutContext(discord.Embed):
 
     def __init__(self, author, **kwargs):
         super(EmbedWithAuthorWithoutContext, self).__init__(**kwargs)
-        name = author.nick if not None else author.display_name
+        if isinstance(author, discord.User):
+            name = author.display_name
+        else:
+            name = author.nick if not None else author.display_name
         if author.display_avatar.url is not None:
             self.set_author(name=name, icon_url=author.display_avatar.url)
         else:
