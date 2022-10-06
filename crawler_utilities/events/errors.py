@@ -199,8 +199,9 @@ class Errors(commands.Cog):
         error_msg = self.gen_error_message()
 
         await sendEmbedError(ctx,
-                             f"Uh oh, that wasn't supposed to happen! "
-                             f"Please join the Support Discord (``{ctx.prefix}support``) and file a bug report, with the title included in the report.",
+                             f"Uh oh, that wasn't supposed to happen!\n"
+                             f"Please join the Support Discord (``/support``) and run the ``/bugreport`` command, follow the onscreen instruction and include ``{error_msg}`` in the report.\n\n"
+                             f"*PS. General mentions of the error_msg outside of a /bugreport will be **ignored**.*",
                              error_msg)
 
         embed = ErrorEmbedWithAuthorWithoutContext(ctx.message.author)
@@ -303,8 +304,9 @@ class Errors(commands.Cog):
         error_msg = self.gen_error_message()
 
         await sendEmbedSlashError(ctx,
-                                  f"Uh oh, that wasn't supposed to happen! "
-                                  f"Please join the Support Discord (``/support``) and file a bug report, with the title included in the report.",
+                                  f"Uh oh, that wasn't supposed to happen!\n"
+                                  f"Please join the Support Discord (``/support``) and run the ``/bugreport`` command, follow the onscreen instruction and include ``{error_msg}`` in the report.\n\n"
+                                  f"*PS. General mentions of the error_msg outside of a /bugreport will be **ignored**.*",
                                   error_msg)
 
         embed = ErrorEmbedWithAuthorWithoutContext(ctx.interaction.user)
