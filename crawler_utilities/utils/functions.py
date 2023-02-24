@@ -144,3 +144,7 @@ async def get_next_num(properties, keyName):
     reportNum['amount'] += 1
     await properties.replace_one({"key": keyName}, reportNum)
     return f"{num}"
+
+
+def oxford_comma(_input: list):
+    return _input[0] if len(_input) < 2 else (', '.join(_input[:-1]) + (',' if len(_input) > 2 else '') + ' and ' + _input[-1])
