@@ -2,7 +2,7 @@ import discord.ui.view
 from discord import ButtonStyle, Interaction
 from discord.ui import Button
 
-from crawler_utilities.utils.embeds import EmbedWithAuthorWithoutContext
+from crawler_utilities.utils.embeds import EmbedWithRandomColor
 from discord.ext import commands
 import crawler_utilities.utils.globals as GG
 from crawler_utilities.utils.functions import get_positivity
@@ -63,7 +63,7 @@ class Settings(commands.Cog):
 
 
 def getIssueSettingsEmbed(settings, author):
-    embed = EmbedWithAuthorWithoutContext(author)
+    embed = EmbedWithRandomColor()
     embed.title = "IssueCrawler settings for this server."
 
     selfClose = active if settings.get('allow_selfClose', False) else inactive
@@ -81,7 +81,7 @@ def getIssueSettingsEmbed(settings, author):
 
 
 def get5eSettingsEmbed(settings, author):
-    embed = EmbedWithAuthorWithoutContext(author)
+    embed = EmbedWithRandomColor()
     embed.title = "5eCrawler settings for this server."
 
     monster = active if settings.get('req_dm_monster', True) else inactive

@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="CrawlerUtilities",
-    version="0.0.45",
+    version="0.0.46",
     license="MIT",
     author="LordDusk",
     author_email="mail@crawleremporium.com",
