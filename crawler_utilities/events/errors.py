@@ -70,7 +70,7 @@ def logError(command, description):
 
 
 async def sendEmbedError(ctx, description, title=None):
-    embed = ErrorEmbedWithAuthorWithoutContext(ctx.message.author)
+    embed = ErrorEmbedWithAuthorWithoutContext()
     if title is not None:
         embed.title = title
     else:
@@ -84,7 +84,7 @@ async def sendEmbedError(ctx, description, title=None):
 
 
 async def sendEmbedSlashError(ctx, description, title=None):
-    embed = ErrorEmbedWithAuthorWithoutContext(ctx.interaction.user)
+    embed = ErrorEmbedWithAuthorWithoutContext()
     if title is not None:
         embed.title = title
     else:
@@ -98,14 +98,14 @@ async def sendEmbedSlashError(ctx, description, title=None):
 
 
 async def sendAuthorEmbedError(ctx, description):
-    embed = ErrorEmbedWithAuthorWithoutContext(ctx.message.author)
+    embed = ErrorEmbedWithAuthorWithoutContext()
     embed.title = f"Error in command - {ctx.message.content}"
     embed.description = description
     await ctx.author.send(embed=embed)
 
 
 async def sendAuthorEmbedSlashError(ctx, description):
-    embed = ErrorEmbedWithAuthorWithoutContext(ctx.interaction.user)
+    embed = ErrorEmbedWithAuthorWithoutContext()
     embed.title = f"Error in command - {ctx.command.qualified_name}"
     embed.description = description
     await ctx.author.send(embed=embed)
@@ -210,7 +210,7 @@ class Errors(commands.Cog):
                              f"*PS. General mentions of the error_msg outside of a /bugreport will be **ignored**.*",
                              error_msg)
 
-        embed = ErrorEmbedWithAuthorWithoutContext(ctx.message.author)
+        embed = ErrorEmbedWithAuthorWithoutContext()
         embed.title = f"Error: {error_msg}"
         try:
             embed.description = f"Channel: **{ctx.channel}** ({ctx.channel.id})\nServer: **{ctx.guild}** ({ctx.guild.id})\nUser: **{ctx.author.mention}** ({ctx.author.id})\n\n{repr(error)}"
@@ -315,7 +315,7 @@ class Errors(commands.Cog):
                                   f"*PS. General mentions of the error_msg outside of a /bugreport will be **ignored**.*",
                                   error_msg)
 
-        embed = ErrorEmbedWithAuthorWithoutContext(ctx.interaction.user)
+        embed = ErrorEmbedWithAuthorWithoutContext()
         embed.title = f"Error: {error_msg}"
         try:
             embed.description = f"Channel: **{ctx.interaction.channel}** ({ctx.channel.id})\nServer: **{ctx.interaction.guild}** ({ctx.interaction.guild.id})\nUser: **{ctx.interaction.user.mention}** ({ctx.interaction.user.id})\n\n{repr(error)}"
