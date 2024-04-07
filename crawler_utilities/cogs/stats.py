@@ -73,12 +73,12 @@ async def command_activity(bot_name, command, client_id):
     await track_analytics_event(bot_name, "Command", f"{command}", "", client_id)
 
 
-async def track_analytics_event(bot_name, event_category, event_action, event_label, client=None):
+async def track_analytics_event(bot_name, command_type, command, origin_id, client=None):
     """
     :param bot_name: Bot Name
-    :param event_category: Event Category
-    :param event_action: Event Action
-    :param event_label: Event Label
+    :param command_type: Command Type
+    :param command: Command
+    :param origin_id: Id of the User/Guild
     :param client: Specific Client Id for the Events
     """
     if client is None:
@@ -86,21 +86,20 @@ async def track_analytics_event(bot_name, event_category, event_action, event_la
         client = faker.uuid4()
     if isinstance(event_label, str):
         event_label = event_label.lower()
-    await GG.STATSDB[f'{bot_name}'].insert_one({"event": event_category, "action": event_action, "label": event_label, "client": client})
+    await GG.STATSDB[f'{bot_name}'].insert_one({"type": command_type, "command": command, "origin_id": origin_id, "client": client})
 
 
-async def track_analytics_event_values(event_category, event_action, event_value, client=None):
+async def track_analytics_rolls(roll_string, outcome, client=None):
     """
-    :param event_category: Event Category
-    :param event_action: Event Action
-    :param event_value: Event Value
+    :param roll_string: Roll String
+    :param outcome: outcome of the roll
     :param client: Specific Client Id for the Events
     """
     if client is None:
         client = str(datetime.now())
-    if isinstance(event_value, str):
-        event_value = event_value.lower()
-    await GG.STATSDB['5eCrawler'].insert_one({"event": event_category, "action": event_action, "value": event_value, "client": client})
+    if isinstance(outcome, str):
+        outcome = outcome.lower()
+    await GG.STATSDB['5eCrawler'].insert_one({"type": "Rolls", "roll_string": roll_string, "outcome": outcome, "client": client})
 
 
 
