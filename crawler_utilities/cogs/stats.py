@@ -89,9 +89,8 @@ async def track_analytics_event(bot_name, event_category, event_action, event_la
     await GG.STATSDB[f'{bot_name}'].insert_one({"event": event_category, "action": event_action, "label": event_label, "client": client})
 
 
-async def track_analytics_event_values(bot_name, event_category, event_action, event_value, client=None):
+async def track_analytics_event_values(event_category, event_action, event_value, client=None):
     """
-    :param bot_name: Bot Name
     :param event_category: Event Category
     :param event_action: Event Action
     :param event_value: Event Value
@@ -101,7 +100,7 @@ async def track_analytics_event_values(bot_name, event_category, event_action, e
         client = str(datetime.now())
     if isinstance(event_value, str):
         event_value = event_value.lower()
-    await GG.STATSDB[f'{bot_name}'].insert_one({"event": event_category, "action": event_action, "value": event_value, "client": client})
+    await GG.STATSDB['5eCrawler'].insert_one({"event": event_category, "action": event_action, "value": event_value, "client": client})
 
 
 
