@@ -84,8 +84,8 @@ async def track_analytics_event(bot_name, command_type, command, origin_id, clie
     if client is None:
         faker = Faker()
         client = faker.uuid4()
-    if isinstance(event_label, str):
-        event_label = event_label.lower()
+    if isinstance(command, str):
+        command = command.lower()
     await GG.STATSDB[f'{bot_name}'].insert_one({"type": command_type, "command": command, "origin_id": origin_id, "client": client})
 
 
