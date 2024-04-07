@@ -13,6 +13,7 @@ MONGODB = env('MONGODB')
 GOOGLEANALYTICSID = env('GOOGLEANALYTICSID')
 
 HELPDB = motor.motor_asyncio.AsyncIOMotorClient(MONGODB)['lookup'].help
+STATSDB = motor.motor_asyncio.AsyncIOMotorClient(MONGODB)['statistics']
 
 LOCALEFOLDER = env('LOCALEFOLDER')
 LOCALIZATION = {}

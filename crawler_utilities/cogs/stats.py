@@ -62,20 +62,20 @@ class CommandStats(commands.Cog):
 
 
 async def user_activity(bot_name, command, author, client_id):
-    track_google_analytics_event(f"{bot_name}: User", f"{command}", f"{author}", client_id)
+    await track_analytics_event(bot_name, f"User", f"{command}", f"{author}", client_id)
 
 
 async def guild_activity(bot_name, command, guild, client_id):
-    track_google_analytics_event(f"{bot_name}: Guild", f"{command}", f"{guild}", client_id)
+    await track_analytics_event(bot_name, f"Guild", f"{command}", f"{guild}", client_id)
 
 
 async def command_activity(bot_name, command, client_id):
-    track_google_analytics_event(bot_name, f"{command}", "", client_id)
+    await track_analytics_event(bot_name, "Command", f"{command}", "", client_id)
 
 
-def track_google_analytics_event(event_category, event_action, event_label, client=None):
+async def track_analytics_event(bot_name, event_category, event_action, event_label, client=None):
     """
-    Track an event to Google Analytics
+    :param bot_name: Bot Name
     :param event_category: Event Category
     :param event_action: Event Action
     :param event_label: Event Label
@@ -86,56 +86,22 @@ def track_google_analytics_event(event_category, event_action, event_label, clie
         client = faker.uuid4()
     if isinstance(event_label, str):
         event_label = event_label.lower()
-    url = "https://www.google-analytics.com/collect"
-    data = {
-        "v": "1",
-        "t": "event",
-        "tid": GOOGLEANALYTICSID,
-        "cid": client,
-        "ec": event_category,
-        "ea": event_action,
-        "el": event_label,
-        "aip": "1"
-    }
-    headers = {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.135 Safari/537.36 Edge/12.246',
-        'cache-control': "no-cache"
-    }
-    try:
-        requests.post(url, params=data, headers=headers)
-    except Exception as e:
-        log.error(f"Tried logging, but failed: {e}")
+    await GG.STATSDB[f'{bot_name}'].insert_one({"event": event_category, "action": event_action, "label": event_label, "client": client})
 
 
-def track_google_analytics_event_values(event_category, event_action, event_value, client=None):
+async def track_analytics_event_values(bot_name, event_category, event_action, event_value, client=None):
     """
-    Track an event to Google Analytics
+    :param bot_name: Bot Name
     :param event_category: Event Category
     :param event_action: Event Action
-    :param event_label: Event Label
+    :param event_value: Event Value
     :param client: Specific Client Id for the Events
     """
     if client is None:
         client = str(datetime.now())
-    url = "https://www.google-analytics.com/collect"
-    data = {
-        "v": "1",
-        "t": "event",
-        "tid": GOOGLEANALYTICSID,
-        "cid": client,
-        "ec": event_category,
-        "ea": event_action,
-        "ev": event_value,
-        "aip": "1"
-    }
-    headers = {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.76 Safari/537.36',
-        'cache-control': "no-cache"
-    }
-    try:
-        requests.post(url, params=data, headers=headers)
-    except Exception as e:
-        log.error(f"Tried logging, but failed: {e}")
+    if isinstance(event_value, str):
+        event_value = event_value.lower()
+    await GG.STATSDB[f'{bot_name}'].insert_one({"event": event_category, "action": event_action, "value": event_value, "client": client})
 
 
 
