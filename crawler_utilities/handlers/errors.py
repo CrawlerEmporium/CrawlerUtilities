@@ -5,6 +5,12 @@ class CrawlerException(Exception):
         super().__init__(msg)
 
 
+class MissingPaginator(CrawlerException):
+    """Raised when a paginator is missing."""
+
+    def __init__(self, msg=None):
+        super().__init__(msg or "You should not see this error. A paginator is missing. Please report this error to the support server.")
+
 class InvalidArgument(CrawlerException):
     """Raised when an argument is invalid."""
     pass
