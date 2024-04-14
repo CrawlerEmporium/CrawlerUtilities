@@ -54,6 +54,20 @@ async def createPaginator(ctx, choices, message=None, force_select=False, title=
         _page = Page(embeds=[embed])
         pages.append(_page)
 
+    return sendPaginator(pages)
+
+
+async def createPaginatorWithEmbeds(embeds):
+    pages = []
+
+    for embed in embeds:
+        _page = Page(embeds=[embed])
+        pages.append(_page)
+
+    return sendPaginator(pages)
+
+
+def sendPaginator(pages):
     paginator = Paginator(pages=pages, show_indicator=True, use_default_buttons=False, timeout=60,
                           author_check=True, custom_buttons=buttons)
     return paginator
