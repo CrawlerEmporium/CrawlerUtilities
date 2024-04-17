@@ -1,4 +1,0 @@
-py-cord>=2.5.0
-motor>=2.3.0
-Faker
-d20
