@@ -22,7 +22,7 @@ def paginate(iterable, n, fillvalue=None):
     return [i for i in zip_longest(*args, fillvalue=fillvalue) if i is not None]
 
 
-async def createPaginator(ctx, choices, message=None, force_select=False, title="Multiple Matches Found",
+def createPaginator(ctx, choices, message=None, force_select=False, title="Multiple Matches Found",
                           desc="What are you looking for?\n",
                           author=False):
     if len(choices) == 0:
@@ -57,7 +57,7 @@ async def createPaginator(ctx, choices, message=None, force_select=False, title=
     return sendPaginator(pages)
 
 
-async def createPaginatorWithEmbeds(embeds):
+def createPaginatorWithEmbeds(embeds):
     pages = []
 
     for embed in embeds:
