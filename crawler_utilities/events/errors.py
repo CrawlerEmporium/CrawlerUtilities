@@ -218,7 +218,7 @@ class Errors(commands.Cog):
         await splitDiscordEmbedField(embed, tb, "Traceback")
 
         await errorChannel.send(embed=embed)
-        raise error("Error caused by message: `{}`".format(ctx.message.content))
+        raise Exception(f"Error ({str(error)}) caused by message: `{ctx.message.content}`")
         # log.error("Error caused by message: `{}`".format(ctx.message.content))
 
     @commands.Cog.listener()
@@ -323,7 +323,7 @@ class Errors(commands.Cog):
         await splitDiscordEmbedField(embed, tb, "Traceback")
 
         await errorChannel.send(embed=embed)
-        raise error("Error caused by message: `{}`".format(ctx.command.qualified_name))
+        raise Exception(f"Error ({str(error)}) caused by message: `{ctx.command.qualified_name}`")
         # log.error("Error caused by message: `{}`".format(ctx.command.qualified_name))
 
     def gen_error_message(self):
