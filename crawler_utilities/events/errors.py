@@ -114,6 +114,7 @@ async def sendAuthorEmbedSlashError(ctx, description):
 class Errors(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+        raise Exception("TEST: Raised Exception in CrawlerUtilities Cog")
 
     @commands.Cog.listener()
     async def on_command_error(self, ctx, error):
