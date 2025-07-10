@@ -76,24 +76,24 @@ async def sendEmbedError(ctx, description, title=None):
     else:
         embed.title = f"Error in command - {ctx.message.content}"
     embed.description = description
-    if ctx.message is not None:
-        logError(ctx.message.content, description)
-    else:
-        logError(ctx.command.qualified_name, description)
+    # if ctx.message is not None:
+    #     logError(ctx.message.content, description)
+    # else:
+    #     logError(ctx.command.qualified_name, description)
     await ctx.send(embed=embed)
 
-
-async def sendEmbedSlashError(ctx, description, title=None):
+async def sendEmbedSlashError(ctx, error, title=None):
+    description = str(error)
     embed = ErrorEmbedWithAuthorWithoutContext()
     if title is not None:
         embed.title = title
     else:
         embed.title = f"Error in command - {ctx.command.qualified_name}"
     embed.description = description
-    if ctx.message is not None:
-        logError(ctx.message.content, description)
-    else:
-        logError(ctx.command.qualified_name, description)
+    # if ctx.message is not None:
+    #     logError(ctx.message.content, description)
+    # else:
+    #     logError(ctx.command.qualified_name, description)
     await ctx.respond(embed=embed, ephemeral=True)
 
 
@@ -120,21 +120,19 @@ class Errors(commands.Cog):
         errorChannel = await self.bot.fetch_channel(self.bot.error)
         if isinstance(error, commands.CommandNotFound):
             return
-        log.error("Error caused by message: `{}`".format(ctx.message.content))
-        log.error('\n'.join(traceback.format_exception(type(error), error, error.__traceback__)))
+        # log.error("Error caused by message: `{}`".format(ctx.message.content))
+        # log.error('\n'.join(traceback.format_exception(type(error), error, error.__traceback__)))
         if isinstance(error, CrawlerException):
-            return await sendEmbedError(ctx, str(error))
+            return await sendEmbedError(ctx, error)
 
         tb = ''.join(traceback.format_exception(type(error), error, error.__traceback__))
         if isinstance(error,
                       (commands.MissingRequiredArgument, commands.BadArgument, commands.NoPrivateMessage, ValueError)):
-            return await sendEmbedError(ctx, "" + str(
-                error) + f"\nUse `{ctx.prefix}help " + ctx.command.qualified_name + "` for help.")
+            return await sendEmbedError(ctx, error, f"\nUse `{ctx.prefix}help " + ctx.command.qualified_name + "` for help.")
         elif isinstance(error, commands.CheckFailure):
             return await sendEmbedError(ctx, "You are not allowed to run this command.")
         elif isinstance(error, commands.CommandOnCooldown):
-            return await sendEmbedError(ctx,
-                                        "This command is on cooldown for {:.1f} seconds.".format(error.retry_after))
+            return await sendEmbedError(ctx, "This command is on cooldown for {:.1f} seconds.".format(error.retry_after))
         elif isinstance(error, UnexpectedQuoteError):
             return await sendEmbedError(ctx,
                                         f"You either gave me a command that requires quotes, and you forgot one.\n"
@@ -153,7 +151,7 @@ class Errors(commands.Cog):
                     try:
                         await sendAuthorEmbedError(ctx, tb)
                     except Exception as e:
-                        log.info(f"Error sending traceback: {e}")
+                        raise Exception(f"Error sending traceback: {e}")
             if isinstance(original, CrawlerException):
                 return await sendEmbedError(ctx, str(original))
             if isinstance(original, TooManyRolls):
@@ -220,14 +218,14 @@ class Errors(commands.Cog):
         await splitDiscordEmbedField(embed, tb, "Traceback")
 
         await errorChannel.send(embed=embed)
-        log.error("Error caused by message: `{}`".format(ctx.message.content))
+        raise error("Error caused by message: `{}`".format(ctx.message.content))
+        # log.error("Error caused by message: `{}`".format(ctx.message.content))
 
     @commands.Cog.listener()
     async def on_application_command_error(self, ctx, error):
         errorChannel = await self.bot.fetch_channel(self.bot.error)
-        log.error(
-            f"Error caused by slash: {ctx.command.qualified_name}, auth: {ctx.interaction.user} ({ctx.interaction.user.id})")
-        log.error('\n'.join(traceback.format_exception(type(error), error, error.__traceback__)))
+        # log.error(f"Error caused by slash: {ctx.command.qualified_name}, auth: {ctx.interaction.user} ({ctx.interaction.user.id})")
+        # log.error('\n'.join(traceback.format_exception(type(error), error, error.__traceback__)))
         if isinstance(error, CrawlerException):
             return await sendEmbedSlashError(ctx, str(error))
         tb = ''.join(traceback.format_exception(type(error), error, error.__traceback__))
@@ -258,7 +256,7 @@ class Errors(commands.Cog):
                     try:
                         await sendAuthorEmbedSlashError(ctx, tb)
                     except Exception as e:
-                        log.info(f"Error sending traceback: {e}")
+                        raise Exception(f"Error sending traceback: {e}")
             if isinstance(original, CrawlerException):
                 return await sendEmbedSlashError(ctx, str(original))
             if isinstance(original, TooManyRolls):
@@ -325,7 +323,8 @@ class Errors(commands.Cog):
         await splitDiscordEmbedField(embed, tb, "Traceback")
 
         await errorChannel.send(embed=embed)
-        log.error("Error caused by message: `{}`".format(ctx.command.qualified_name))
+        raise error("Error caused by message: `{}`".format(ctx.command.qualified_name))
+        # log.error("Error caused by message: `{}`".format(ctx.command.qualified_name))
 
     def gen_error_message(self):
         subject = random.choice(adj)
