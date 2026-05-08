@@ -33,7 +33,7 @@ class JoinLeave(commands.Cog):
         except:
             pass
         await tracker.send(embed=embed)
-        await self.bot.change_presence(activity=discord.Game(f"with {len(self.bot.guilds)} servers | {self.bot.defaultPrefix}help | v{self.bot.version}"))
+        await self.bot.change_presence(activity=discord.Game(f"with {len(self.bot.guilds)} servers | v{self.bot.version}"))
 
     @commands.Cog.listener()
     async def on_guild_remove(self, guild):
@@ -56,7 +56,7 @@ class JoinLeave(commands.Cog):
         except:
             pass
         await tracker.send(embed=embed)
-        await self.bot.change_presence(activity=discord.Game(f"with {len(self.bot.guilds)} servers | {self.bot.defaultPrefix}help | v{self.bot.version}"))
+        await self.bot.change_presence(activity=discord.Game(f"with {len(self.bot.guilds)} servers | v{self.bot.version}"))
 
 
 def setup(bot):
